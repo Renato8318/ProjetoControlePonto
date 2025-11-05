@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VERITIME: O tempo no seu controle</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <audio id="somAlerta" src="https://www.soundjay.com/buttons/beep-01a.mp3" preload="auto"></audio>
+
+    <div class="container">
+        <h1>⌚ VERITIME</h1>
+        <p class="slogan">O tempo no seu controle</p>
+        
+        <div id="relogioReal" class="relogio">--:--:--</div> 
+        
+        <div class="botoes">
+            <button id="btnEntrada">Entrada (Início)</button>
+            <button id="btnSaidaAlmoco">Saída Almoço</button>
+            <button id="btnVoltaAlmoco">Volta Almoço</button>
+            <button id="btnSaida">Saída (Fim)</button>
+        </div>
+        
+        <h2>Registro do Dia</h2>
+        
+        <p id="statusMensagem" class="mensagem sucesso">Clique em "Entrada" para começar a jornada.</p>
+
+        <table id="tabelaRegistro">
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Horário</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+        
+        <div id="progressoJornada">
+            <h3>Progresso (<span id="jornadaMetaDisplay">08:00</span> Meta)</h3>
+            <div class="barra-base">
+                <div id="barraPreenchimento" class="barra-preenchimento"></div>
+                <span id="porcentagemProgresso" class="porcentagem-texto">0%</span>
+            </div>
+            <p id="progressoTempo">--:--:-- de 08:00:00</p>
+        </div>
+
+        <div class="configuracao">
+            <h2>Configurações</h2>
+            
+            <h3 class="subtitulo-config">Jornada Meta (A ser trabalhada)</h3>
+            <div class="campos-jornada campos-pausa">
+                <label for="jornadaHoras">Horas:</label>
+                <input type="number" id="jornadaHoras" value="8" min="1" max="12">
+                
+                <label for="jornadaMinutos">Minutos:</label>
+                <input type="number" id="jornadaMinutos" value="0" min="0" max="59">
+            </div>
+
+            <h3 class="subtitulo-config">Horários de Referência</h3>
+            <div class="campos-hora campos-pausa">
+                <label for="horaEntrada">Entrada:</label>
+                <input type="time" id="horaEntrada" value="09:00">
+                
+                <label for="horaSaida">Saída Prevista:</label>
+                <input type="time" id="horaSaida" value="18:00">
+            </div>
+            
+            <h3 class="subtitulo-config">Duração do Intervalo</h3>
+            <div class="campos-pausa campos-almoco-unico"> 
+                <label for="minutosAlmoco">Almoço (min):</label>
+                <input type="number" id="minutosAlmoco" value="60" min="30" max="180">
+            </div>
+        </div>
+        
+        
+        <div id="resumoJornada">
+            <h2>Resumo de Duração</h2>
+            <p>Intervalo (Almoço Batido): <span id="duracaoAlmoco">--:--:--</span></p>
+            <p>Jornada Líquida Total: <span id="jornadaLiquida">--:--:--</span></p>
+            <p class="destaque-saida">Saída Sugerida: <span id="saidaSugeria">--:--</span></p>
+        </div>
+        
+        <button id="btnLimpar">Limpar Registros</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
