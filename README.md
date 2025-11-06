@@ -43,7 +43,7 @@ Não há pré-requisitos, além de um navegador moderno (Chrome, Firefox, Edge, 
 
 1.  **Clone o Repositório** (ou baixe os arquivos zipados):
     ```bash
-    git clone [LINK_DO_SEU_REPOSITORIO]
+    git clone https://github.com/Renato8318/ProjetoControlePonto/tree/main
     ```
 2.  **Navegue até a Pasta do Projeto:**
     ```bash
@@ -56,16 +56,17 @@ A aplicação estará pronta para uso!
 
 ## 📸 Demonstração Visual
 
-*(Aqui você pode inserir uma captura de tela ou um GIF da aplicação, preferencialmente a imagem que geramos acima.)*
+**Abaixo, a interface limpa e responsiva do Veritime:**
 
-![Imagem da interface do Veritime com Tailwind CSS](veritime.png)
+![Imagem da interface do Veritime com Tailwind CSS](assets/veritime-screenshot.png)
+
 
 ## 👤 Autor
 
 O projeto Veritime foi desenvolvido por:
 
-| <img src="URL_DA_SUA_FOTO" width="100px;" alt="Renato Paiva"/><br /><sub>**Renato Paiva**</sub> |
-| :---: |
+| <img src="assets/renato-paiva.jpg" width="100px;" alt="Renato Paiva"/><br /><sub>**Renato Paiva**</sub> |
+| :---:
 
 * **Função:** Desenvolvedor Front-End
 * **GitHub:** https://github.com/Renato8318
