@@ -58,7 +58,7 @@ A aplicação estará pronta para uso!
 
 *(Aqui você pode inserir uma captura de tela ou um GIF da aplicação, preferencialmente a imagem que geramos acima.)*
 
-![Imagem da interface do Veritime com Tailwind CSS](link-para-sua-imagem-ou-screenshot-do-veritime.png)
+![Imagem da interface do Veritime com Tailwind CSS](veritime.png)
 
 ## 👤 Autor
 
@@ -68,9 +68,7 @@ O projeto Veritime foi desenvolvido por:
 | :---: |
 
 * **Função:** Desenvolvedor Front-End
-* **GitHub:** [Seu Link do GitHub Aqui](https://github.com/SeuUsuario)
-* **LinkedIn:** [Seu Link do LinkedIn Aqui](https://linkedin.com/in/SeuUsuario)
-
-## 📄 Licença
+* **GitHub:** https://github.com/Renato8318
+* **LinkedIn:** https://www.linkedin.com/in/renato-paiva2022/ ## 📄 Licença
 
 Este projeto está licenciado sob a Licença MIT.
