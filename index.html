@@ -3,89 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>VERITIME: O tempo no seu controle</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Veritime - Controle de Ponto</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="style.css"> 
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif; 
+        }
+        /* Estilo para inputs de tempo e número no mobile, removendo setas */
+        input[type="time"], input[type="number"] {
+            appearance: none;
+        }
+        
+        /* Classes de feedback manipuladas pelo JS (cores Tailwind) */
+        .mensagem.sucesso {
+            background-color: #d1fae5; /* green-100 */
+            color: #065f46; /* green-700 */
+            border: 1px solid #34d399; /* green-400 */
+        }
+        .mensagem.erro {
+            background-color: #fee2e2; /* red-100 */
+            color: #991b1b; /* red-700 */
+            border: 1px solid #f87171; /* red-400 */
+        }
+        .ultimo-registro {
+            background-color: #fef3c7; /* yellow-100 */
+            font-weight: bold;
+            border-left: 5px solid #fbbf24; /* yellow-400 */
+        }
+    </style>
 </head>
-<body>
-
-    <audio id="somAlerta" src="https://www.soundjay.com/buttons/beep-01a.mp3" preload="auto"></audio>
-
-    <div class="container">
-        <h1>⌚ VERITIME</h1>
-        <p class="slogan">O tempo no seu controle</p>
+<body class="bg-gray-100 flex flex-col justify-center items-center p-4 min-h-screen">
+    
+    <div class="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-lg mx-auto my-6">
         
-        <div id="relogioReal" class="relogio">--:--:--</div> 
-        
-        <div class="botoes">
-            <button id="btnEntrada">Entrada (Início)</button>
-            <button id="btnSaidaAlmoco">Saída Almoço</button>
-            <button id="btnVoltaAlmoco">Volta Almoço</button>
-            <button id="btnSaida">Saída (Fim)</button>
+        <header>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-blue-600 text-center uppercase tracking-widest mt-4 mb-1">
+                <i class="fas fa-clock text-3xl md:text-4xl mr-2"></i> VERITIME
+            </h1>
+            <p class="text-gray-500 text-center text-lg italic mb-6">O tempo no seu controle</p>
+        </header>
+
+        <div id="relogio" class="text-4xl font-bold text-center p-4 border-2 border-blue-500 rounded-lg bg-gray-100 text-gray-800 my-6 shadow-inner">
+            00:00:00
+        </div>
+
+        <div class="flex flex-wrap justify-between gap-2 my-6">
+            <button id="btnEntrada" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors w-full sm:w-[calc(50%-4px)]">
+                Entrada (Início)
+            </button>
+            <button id="btnSaidaAlmoco" class="bg-yellow-500 hover:bg-yellow-600 text-gray-800 font-bold py-3 px-4 rounded-lg shadow-md transition-colors w-full sm:w-[calc(50%-4px)]">
+                Saída Almoço
+            </button>
+            <button id="btnVoltaAlmoco" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors w-full sm:w-[calc(50%-4px)]">
+                Volta Almoço
+            </button>
+            <button id="btnSaida" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors w-full sm:w-[calc(50%-4px)]">
+                Saída (Fim)
+            </button>
         </div>
         
-        <h2>Registro do Dia</h2>
-        
-        <p id="statusMensagem" class="mensagem sucesso">Clique em "Entrada" para começar a jornada.</p>
+        <div id="statusMensagem" class="p-3 mb-4 rounded font-semibold text-center" style="display:none;"></div>
 
-        <table id="tabelaRegistro">
-            <thead>
+        <h2 class="text-xl font-bold text-gray-700 mt-6 mb-3 text-center">Registro do Dia</h2>
+        <table id="tabelaRegistros" class="w-full border-collapse mt-4">
+            <thead class="bg-blue-600 text-white">
                 <tr>
-                    <th>Tipo</th>
-                    <th>Horário</th>
+                    <th class="p-3 text-left border border-blue-700 rounded-tl-lg">Tipo</th>
+                    <th class="p-3 text-left border border-blue-700 rounded-tr-lg">Horário</th>
                 </tr>
             </thead>
             <tbody>
                 </tbody>
         </table>
-        
-        <div id="progressoJornada">
-            <h3>Progresso (<span id="jornadaMetaDisplay">08:00</span> Meta)</h3>
-            <div class="barra-base">
-                <div id="barraPreenchimento" class="barra-preenchimento"></div>
-                <span id="porcentagemProgresso" class="porcentagem-texto">0%</span>
+
+        <div id="progressoJornada" class="mt-8 p-5 border border-blue-400 rounded-lg bg-blue-50 text-center" style="display: none;">
+            <h3 class="text-lg font-semibold text-blue-700 mb-3">Progresso da Jornada</h3>
+            <div class="w-full h-8 bg-gray-300 rounded-full overflow-hidden mb-2 relative">
+                <div id="barraPreenchimento" class="h-full bg-green-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-800" id="progressoTexto">0%</span>
             </div>
-            <p id="progressoTempo">--:--:-- de 08:00:00</p>
+            <p id="progressoTempo" class="text-gray-700 font-medium">Tempo trabalhado: 00:00:00</p>
         </div>
 
-        <div class="configuracao">
-            <h2>Configurações</h2>
+        <div id="resumoJornada" class="mt-6 p-5 border-2 border-blue-500 rounded-lg bg-blue-100/50" style="display: none;">
+            <h2 class="text-xl font-bold text-blue-700 mb-3 text-center border-b-2 border-blue-300 pb-2">Resumo da Jornada</h2>
+            <p class="mb-2 text-gray-700">Jornada Meta: <span id="metaTotal" class="font-bold text-gray-800">08:00</span></p>
+            <p class="mb-3 text-gray-700">Tempo de Pausa (Almoço): <span id="pausaTotal" class="font-bold text-gray-800">01:00</span></p>
+            <p class="mb-4 text-gray-700">Horário de Entrada: <span id="entradaRegistrada" class="font-bold text-gray-800">--:--</span></p>
+            <p class="pt-3 border-t border-blue-300 font-bold text-lg text-gray-800">
+                Saída Sugerida: <span id="saidaSugeria" class="text-red-600 ml-1">--:--</span>
+            </p>
+        </div>
+
+        <div class="configuracao mt-8">
+            <h2 class="text-2xl font-bold text-blue-600 mb-5 text-center">Configurações</h2>
             
-            <h3 class="subtitulo-config">Jornada Meta (A ser trabalhada)</h3>
-            <div class="campos-jornada campos-pausa">
-                <label for="jornadaHoras">Horas:</label>
-                <input type="number" id="jornadaHoras" value="8" min="1" max="12">
-                
-                <label for="jornadaMinutos">Minutos:</label>
-                <input type="number" id="jornadaMinutos" value="0" min="0" max="59">
+            <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg shadow-inner mb-4">
+                <label for="jornadaHoras" class="font-bold text-gray-700 col-span-2 text-center">Jornada Meta</label>
+                <div class="col-span-1">
+                    <label for="jornadaHoras" class="text-sm text-gray-600">Horas</label>
+                    <input type="number" id="jornadaHoras" value="8" min="0" max="24" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <div class="col-span-1">
+                    <label for="jornadaMinutos" class="text-sm text-gray-600">Minutos</label>
+                    <input type="number" id="jornadaMinutos" value="0" min="0" max="59" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                </div>
             </div>
 
-            <h3 class="subtitulo-config">Horários de Referência</h3>
-            <div class="campos-hora campos-pausa">
-                <label for="horaEntrada">Entrada:</label>
-                <input type="time" id="horaEntrada" value="09:00">
-                
-                <label for="horaSaida">Saída Prevista:</label>
-                <input type="time" id="horaSaida" value="18:00">
+            <h3 class="text-base font-bold text-gray-700 mt-6 mb-3 border-t pt-4">Horários de Referência (Previsão)</h3>
+            <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg shadow-inner mb-4">
+                <label for="horaEntrada" class="font-bold text-gray-700">Entrada:</label>
+                <input type="time" id="horaEntrada" value="09:00" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
+                <label for="horaSaidaPrevista" class="font-bold text-gray-700">Saída Prevista:</label>
+                <input type="time" id="horaSaidaPrevista" value="18:00" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
             </div>
-            
-            <h3 class="subtitulo-config">Duração do Intervalo</h3>
-            <div class="campos-pausa campos-almoco-unico"> 
-                <label for="minutosAlmoco">Almoço (min):</label>
-                <input type="number" id="minutosAlmoco" value="60" min="30" max="180">
+
+            <h3 class="text-base font-bold text-gray-700 mt-6 mb-3 border-t pt-4">Duração do Intervalo</h3>
+            <div class="flex justify-center p-4 bg-gray-50 rounded-lg shadow-inner">
+                <div class="w-full max-w-xs">
+                    <label for="pausaMinutos" class="font-bold text-gray-700 block text-center mb-1">Almoço (min):</label>
+                    <input type="number" id="pausaMinutos" value="60" min="0" max="180" class="w-full p-2 border border-gray-300 rounded-md text-center focus:ring-blue-500 focus:border-blue-500">
+                </div>
             </div>
         </div>
+
+        <button id="btnLimpar" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg mt-8 transition-colors">
+            Limpar Todos os Dados e Configurações
+        </button>
         
-        
-        <div id="resumoJornada">
-            <h2>Resumo de Duração</h2>
-            <p>Intervalo (Almoço Batido): <span id="duracaoAlmoco">--:--:--</span></p>
-            <p>Jornada Líquida Total: <span id="jornadaLiquida">--:--:--</span></p>
-            <p class="destaque-saida">Saída Sugerida: <span id="saidaSugeria">--:--</span></p>
-        </div>
-        
-        <button id="btnLimpar">Limpar Registros</button>
+        <footer class="mt-8 p-4 text-sm text-gray-500 text-center bg-gray-100 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
+            <p>&copy; 2025 Veritime | Criado por **Renato Paiva, Dev**</p>
+        </footer>
     </div>
-
+    
     <script src="script.js"></script>
 </body>
 </html>
