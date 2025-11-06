@@ -1,80 +1,76 @@
-📄 README do Projeto Veritime - Controle de Ponto Digital
+⏰ Veritime: O Tempo no Seu Controle
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Status-Em%20Desenvolvimento-yellowgreen" alt="Status do Projeto">
+  <img src="https://img.shields.io/badge/Front--End-HTML%20%7C%20CSS%20%7C%20JS-blue" alt="Tecnologias de Desenvolvimento">
+  <img src="https://img.shields.io/badge/Estilo-Tailwind%20CSS-06B6D4" alt="Estilização">
+</p>
 
-Este README.md detalha o projeto Veritime, um sistema de controle de ponto digital leve e funcional, desenvolvido com HTML, CSS e JavaScript puros.
+## 🌟 Sobre o Projeto
 
+O Veritime é uma aplicação web simples e minimalista para **Controle de Ponto (Jornada de Trabalho)**. Foi desenvolvido para calcular o tempo trabalhado, gerenciar os intervalos (almoço) e fornecer a hora de saída sugerida, tudo isso diretamente no navegador, sem depender de servidor (client-side).
 
-🌟 Visão Geral
+O foco está na clareza e na usabilidade, utilizando persistência de dados no `localStorage` do navegador para manter os registros do dia.
 
-O Veritime é uma aplicação web de página única (SPA) projetada para ajudar usuários a monitorar e calcular sua jornada de trabalho diária. Ele registra entradas, saídas para almoço, voltas do almoço e saídas finais, utilizando o localStorage do navegador para persistir os dados e configurações.
+## ✨ Funcionalidades
 
+* **Marcação de Pontos:** Registrar horários de Entrada, Saída Almoço, Volta Almoço e Saída Final.
+* **Relógio em Tempo Real:** Exibição precisa do horário atual.
+* **Cálculo da Jornada:** Cálculo automático do tempo trabalhado (líquido).
+* **Saída Sugerida:** Previsão do horário de saída baseado na Entrada e na Jornada Meta configurada.
+* **Barra de Progresso:** Feedback visual da porcentagem da jornada concluída.
+* **Configurações Personalizadas:** Definição da Jornada Meta (ex: 8h) e do Tempo de Pausa (ex: 60min).
+* **Persistência de Dados:** Todos os registros e configurações são salvos no `localStorage`.
+* **Design Clean:** Estilo moderno e responsivo, graças ao **Tailwind CSS**.
 
+## 🛠️ Tecnologias Utilizadas
 
-✨ Funcionalidades Principais
+O Veritime é um projeto puramente **Front-End**, desenvolvido com a tríade da web:
 
-Relógio em Tempo Real: Exibição dinâmica da hora atual.
-Marcação de Ponto: Botões simples e intuitivos para registrar os 4 principais eventos da jornada (Entrada, Saída Almoço, Volta Almoço, Saída Final).
-Persistência de Dados: Uso do localStorage para salvar os registros de ponto e as configurações de jornada (Meta e Pausa), mantendo-os disponíveis mesmo após fechar o navegador.
-Cálculo Automático de Jornada: Calcula o tempo líquido trabalhado e a Saída Sugerida com base na Entrada e na Jornada Meta configurada.
+* **HTML5:** Estrutura semântica.
+* **CSS3 (Tailwind CSS):** Framework de utilidades para um design *clean* e responsivo.
+* **JavaScript (ES6+):** Lógica principal, cálculos de tempo e persistência de dados (`localStorage`).
 
+## 🚀 Como Executar o Projeto
 
-Barra de Progresso: Visualização do percentual de conclusão da jornada de trabalho.
+Como o projeto é totalmente *client-side* (não requer servidor ou banco de dados), a execução é extremamente simples.
 
+### Pré-requisitos
 
-Responsividade: Layout totalmente adaptável para dispositivos móveis e desktops.
+Não há pré-requisitos, além de um navegador moderno (Chrome, Firefox, Edge, Safari).
 
+### Passo a Passo
 
-Configurações Personalizadas: Permite definir a Jornada Meta (horas e minutos) e a Duração do Intervalo (minutos).
+1.  **Clone o Repositório** (ou baixe os arquivos zipados):
+    ```bash
+    git clone [LINK_DO_SEU_REPOSITORIO]
+    ```
+2.  **Navegue até a Pasta do Projeto:**
+    ```bash
+    cd veritime
+    ```
+3.  **Abra o Arquivo:**
+    Abra o arquivo `index.html` diretamente no seu navegador.
 
+A aplicação estará pronta para uso!
 
-Status Dinâmico: O estado da aplicação (ex: JORNADA, ALMOCO, FIM) é exibido e controla quais botões estão ativos.
+## 📸 Demonstração Visual
 
+*(Aqui você pode inserir uma captura de tela ou um GIF da aplicação, preferencialmente a imagem que geramos acima.)*
 
+![Imagem da interface do Veritime com Tailwind CSS](link-para-sua-imagem-ou-screenshot-do-veritime.png)
 
-🚀 Como Rodar o Projeto
+## 👤 Autor
 
+O projeto Veritime foi desenvolvido por:
 
+| <img src="URL_DA_SUA_FOTO" width="100px;" alt="Renato Paiva"/><br /><sub>**Renato Paiva**</sub> |
+| :---: |
 
-O Veritime é um projeto front-end simples e não requer back-end ou instalação de pacotes.
+* **Função:** Desenvolvedor Front-End
+* **GitHub:** [Seu Link do GitHub Aqui](https://github.com/SeuUsuario)
+* **LinkedIn:** [Seu Link do LinkedIn Aqui](https://linkedin.com/in/SeuUsuario)
 
-Clone ou Baixe: Baixe o conteúdo dos arquivos (index.html, style.css, script.js).
+## 📄 Licença
 
-Abra o index.html: Simplesmente abra o arquivo index.html em seu navegador web (Chrome, Firefox, Edge, etc.).Comece a Usar: O sistema está pronto. Todas as suas configurações e registros serão salvos localmente.
-
-
-
-⚙️ Estrutura do Código
-
-
-
-O projeto está dividido em três arquivos principais:
-
-Arquivo  Função   Descrição
-
-   index.html  Estrutura Define o layout principal, incluindo o relógio, botões, tabela de registros e formulário de configurações. 
-
-   style.css  Estilo e Layout   Contém todos os estilos visuais, incluindo a responsividade (Media Queries) e o design limpo do Veritime.
-
-   script.js     LógicaGerencia o estado da aplicação, a lógica de marcação de tempo, os cálculos de jornada (tempo líquido, saída sugerida) e a manipulação do localStorage.
-
-
-
-
-🔧 Configurações
-
-
-
-A seção Configurações permite personalizar a jornada:CampoDescriçãoJornada MetaTotal de horas e minutos que devem ser trabalhados no dia (ex: 8 horas e 0 minutos).
-
-Duração do IntervaloTempo total de pausa (almoço) em minutos (ex: 60 minutos).
-Botão Limpar O botão Limpar Todos os Dados apaga permanentemente todos os registros de ponto e todas as configurações salvas no navegador.
-
-
-
-
-📱 Design Responsivo
-
-
-
-
-O Veritime foi desenvolvido com um design fluído, garantindo que a visualização e a usabilidade sejam ideais em qualquer dimensão de tela, desde smartphones até monitores de desktop.
+Este projeto está licenciado sob a Licença MIT.
