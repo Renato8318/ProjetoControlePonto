@@ -70,6 +70,6 @@ O projeto Veritime foi desenvolvido por:
 
 * **Função:** Desenvolvedor Front-End
 * **GitHub:** https://github.com/Renato8318
-* **LinkedIn:** https://www.linkedin.com/in/renato-paiva2022/ ## 📄 Licença
+* **LinkedIn:** linkedin.com/in/renato-paiva-developer## 📄 Licença
 
 Este projeto está licenciado sob a Licença MIT.
