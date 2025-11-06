@@ -1,482 +1,375 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Constantes para Tipos de Ponto ---
-    const TIPOS_PONTO = {
-        ENTRADA: 'Entrada',
-        SAIDA_ALMOCO: 'Saída Almoço',
-        VOLTA_ALMOCO: 'Volta Almoço',
-        SAIDA_FINAL: 'Saída Final'
-    };
-    
-    // --- Variáveis Globais de Alarme ---
-    let alarmeEntradaTimeout = null;
-    let alarme5minAlmocoTimeout = null;
-    let alarme10minAlmocoTimeout = null;
-    
-    // --- Elementos do DOM ---
+    // --- Elementos DOM ---
+    const relogio = document.getElementById('relogio');
+    const statusMensagem = document.getElementById('statusMensagem');
+    const tabelaRegistros = document.getElementById('tabelaRegistros').querySelector('tbody');
+    const progressoJornada = document.getElementById('progressoJornada');
+    const barraPreenchimento = document.getElementById('barraPreenchimento');
+    const progressoTexto = document.getElementById('progressoTexto');
+    const progressoTempo = document.getElementById('progressoTempo');
+    const resumoJornada = document.getElementById('resumoJornada');
+    const entradaRegistrada = document.getElementById('entradaRegistrada');
+    const saidaSugeria = document.getElementById('saidaSugeria');
+    const metaTotal = document.getElementById('metaTotal');
+    const pausaTotal = document.getElementById('pausaTotal');
+
+    // --- Configurações Input ---
+    const jornadaHorasInput = document.getElementById('jornadaHoras');
+    const jornadaMinutosInput = document.getElementById('jornadaMinutos');
+    const horaEntradaInput = document.getElementById('horaEntrada');
+    const horaSaidaPrevistaInput = document.getElementById('horaSaidaPrevista');
+    const pausaMinutosInput = document.getElementById('pausaMinutos');
+
+    // --- Botões ---
     const btnEntrada = document.getElementById('btnEntrada');
     const btnSaidaAlmoco = document.getElementById('btnSaidaAlmoco');
     const btnVoltaAlmoco = document.getElementById('btnVoltaAlmoco');
     const btnSaida = document.getElementById('btnSaida');
     const btnLimpar = document.getElementById('btnLimpar');
-    const tabelaCorpo = document.querySelector('#tabelaRegistro tbody');
-    const statusMensagem = document.getElementById('statusMensagem');
-    const relogioReal = document.getElementById('relogioReal'); 
-    const somAlerta = document.getElementById('somAlerta'); 
-    const inputHoraEntrada = document.getElementById('horaEntrada');
-    const inputHoraSaida = document.getElementById('horaSaida');
-    const inputMinutosAlmoco = document.getElementById('minutosAlmoco');
-    // INPUTS DE JORNADA
-    const inputJornadaHoras = document.getElementById('jornadaHoras');
-    const inputJornadaMinutos = document.getElementById('jornadaMinutos');
-
-    // Elementos de Progresso
-    const barraPreenchimento = document.getElementById('barraPreenchimento');
-    const porcentagemProgresso = document.getElementById('porcentagemProgresso');
-    const progressoTempo = document.getElementById('progressoTempo');
-    const jornadaMetaDisplay = document.getElementById('jornadaMetaDisplay');
-
-    // Elementos de Resumo da Jornada
-    const duracaoAlmocoSpan = document.getElementById('duracaoAlmoco');
-    const jornadaLiquidaSpan = document.getElementById('jornadaLiquida');
-    const saidaSugeriaSpan = document.getElementById('saidaSugeria');
-
 
     // --- Variáveis de Estado ---
-    let registroAtual = {
-        [TIPOS_PONTO.ENTRADA]: null,
-        [TIPOS_PONTO.SAIDA_ALMOCO]: null,
-        [TIPOS_PONTO.VOLTA_ALMOCO]: null,
-        [TIPOS_PONTO.SAIDA_FINAL]: null
+    let registros = [];
+    let jornadaMetaMs = (8 * 60 + 0) * 60 * 1000; // Padrão: 8h
+    let pausaTotalMs = 60 * 60 * 1000; // Padrão: 60min
+    let entradaHora = '09:00';
+    let saidaPrevistaHora = '18:00';
+    let estadoAtual = 'INICIO'; // INICIO, JORNADA, ALMOCO, FIM
+    let timerInterval = null;
+
+    // --- Funções de Utilitários de Tempo ---
+
+    /** Converte HH:MM para milissegundos a partir da meia-noite */
+    const timeToMs = (time) => {
+        const [h, m] = time.split(':').map(Number);
+        return h * 3600000 + m * 60000;
     };
-    
-    // --- Função para Obter Jornada Meta (Em milissegundos) ---
-    function getJornadaMetaMs() {
-        const horas = parseInt(inputJornadaHoras.value) || 8;
-        const minutos = parseInt(inputJornadaMinutos.value) || 0;
-        
-        return (horas * 60 * 60 * 1000) + (minutos * 60 * 1000);
-    }
 
+    /** Converte milissegundos em HH:MM:SS */
+    const msToTime = (ms) => {
+        const totalSeconds = Math.floor(ms / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
 
-    // --- Persistência (LocalStorage) ---
+        const pad = (num) => num.toString().padStart(2, '0');
+        return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+    };
 
-    function salvarEstado() {
-        // 1. Salva os registros de ponto
-        localStorage.setItem('registroPonto', JSON.stringify(registroAtual));
-        
-        // 2. Salva as configurações de horário e duração
-        const configuracoes = {
-            entrada: inputHoraEntrada.value,
-            saida: inputHoraSaida.value,
-            almocoMin: inputMinutosAlmoco.value,
-            jornadaHoras: inputJornadaHoras.value,
-            jornadaMinutos: inputJornadaMinutos.value,
-        };
-        localStorage.setItem('configuracoesPonto', JSON.stringify(configuracoes));
-    }
+    /** Calcula o tempo trabalhado líquido em milissegundos */
+    const calcularTempoTrabalhado = (regs) => {
+        let tempoTrabalhadoMs = 0;
+        let entradaMs = 0;
+        let saidaMs = 0;
 
-    function carregarEstado() {
-        // 1. Carrega as configurações de horário e duração
-        const configsSalvas = localStorage.getItem('configuracoesPonto');
-        if (configsSalvas) {
-            const configs = JSON.parse(configsSalvas);
-            inputHoraEntrada.value = configs.entrada || '09:00';
-            inputHoraSaida.value = configs.saida || '18:00';
-            inputMinutosAlmoco.value = configs.almocoMin || '60';
-            inputJornadaHoras.value = configs.jornadaHoras || '8';
-            inputJornadaMinutos.value = configs.jornadaMinutos || '0';
-        }
+        for (const registro of regs) {
+            const timeMs = registro.timestamp;
+            const tipo = registro.tipo;
 
-        // 2. Carrega os registros de ponto e recria a tabela
-        const registrosSalvos = localStorage.getItem('registroPonto');
-        if (registrosSalvos) {
-            const tempRegistro = JSON.parse(registrosSalvos);
-            
-            for (const [tipo, hora] of Object.entries(tempRegistro)) {
-                if (hora && TIPOS_PONTO[tipo]) {
-                    adicionarRegistroNaTabela(tipo, hora, false); 
+            if (tipo === 'Entrada') {
+                entradaMs = timeMs;
+            } else if (tipo === 'Saída Almoço' || tipo === 'Saída') {
+                saidaMs = timeMs;
+                if (entradaMs !== 0) {
+                    tempoTrabalhadoMs += (saidaMs - entradaMs);
+                    entradaMs = 0; // Reseta para calcular o próximo bloco
                 }
+            } else if (tipo === 'Volta Almoço') {
+                entradaMs = timeMs;
             }
-            registroAtual = Object.fromEntries(
-                Object.entries(tempRegistro).filter(([key]) => TIPOS_PONTO[key])
-            );
-            
-            mostrarMensagem("Dados carregados com sucesso!", 'sucesso');
         }
-        
-        calcularDuracoes(); 
-    }
 
-    // --- Funções Auxiliares de UX/Tempo Real ---
-    
-    function atualizarRelogio() {
-        const agora = new Date();
-        const horaFormatada = `${String(agora.getHours()).padStart(2, '0')}:${String(agora.getMinutes()).padStart(2, '0')}:${String(agora.getSeconds()).padStart(2, '0')}`;
-        relogioReal.textContent = horaFormatada;
-    }
-    
-    setInterval(() => {
-        atualizarRelogio();
-        if (!registroAtual[TIPOS_PONTO.SAIDA_FINAL] && registroAtual[TIPOS_PONTO.ENTRADA]) {
-            calcularDuracoes(); 
+        // Se a jornada estiver ativa (última marcação é Entrada ou Volta Almoço)
+        if (entradaMs !== 0) {
+            const agoraMs = Date.now();
+            tempoTrabalhadoMs += (agoraMs - entradaMs);
         }
-    }, 1000); 
-    atualizarRelogio(); 
 
-    function getHoraFormatada() {
-        return relogioReal.textContent;
-    }
+        return tempoTrabalhadoMs;
+    };
 
-    function timeToDate(timeStr) {
-        if (!timeStr) return null;
-        // O relógio real é formatado como HH:mm:ss, então podemos usar este formato.
-        const [h, m, s] = timeStr.split(':').map(Number);
-        const date = new Date();
-        date.setHours(h, m, s || 0, 0); 
-        return date;
-    }
+    // --- Funções de Estado e UI ---
 
-    function msToTime(ms) {
-        if (ms < 0) return `-${msToTime(Math.abs(ms))}`;
-        const seconds = Math.floor(ms / 1000);
-        const hours = Math.floor(seconds / 3600);
-        const minutes = Math.floor((seconds % 3600) / 60);
-        const remainingSeconds = seconds % 60;
+    const updateRelogio = () => {
+        const now = new Date();
+        const h = now.getHours().toString().padStart(2, '0');
+        const m = now.getMinutes().toString().padStart(2, '0');
+        const s = now.getSeconds().toString().padStart(2, '0');
+        relogio.textContent = `${h}:${m}:${s}`;
 
-        const pad = (num) => String(num).padStart(2, '0');
-        return `${pad(hours)}:${pad(minutes)}:${pad(remainingSeconds)}`;
-    }
-
-    function mostrarMensagem(mensagem, tipo) {
-        statusMensagem.textContent = mensagem;
-        statusMensagem.className = `mensagem ${tipo}`;
-        
-        if (!mensagem.includes("ALERTA")) {
-             setTimeout(() => {
-                if (!statusMensagem.textContent.includes("ALERTA")) {
-                    statusMensagem.textContent = 'Registro pronto para nova marcação.';
-                    statusMensagem.className = 'mensagem sucesso';
-                }
-            }, 3000);
+        if (estadoAtual !== 'INICIO' && estadoAtual !== 'FIM') {
+            updateProgresso();
         }
-    }
-    
-    function adicionarRegistroNaTabela(tipo, hora, salvar = true) {
-        document.querySelectorAll('#tabelaRegistro tbody tr').forEach(row => {
-            row.classList.remove('ultimo-registro');
-        });
+    };
 
-        const novaLinha = tabelaCorpo.insertRow();
-        novaLinha.classList.add('ultimo-registro');
-        
-        const celulaTipo = novaLinha.insertCell(0);
-        const celulaHora = novaLinha.insertCell(1);
-        
-        celulaTipo.textContent = tipo;
-        celulaHora.textContent = hora;
-        
-        if (salvar) {
-            registroAtual[tipo] = hora; 
-            salvarEstado();
-            calcularDuracoes(); 
-        }
-    }
+    const updateProgresso = () => {
+        const tempoTrabalhadoMs = calcularTempoTrabalhado(registros);
+        const porcentagem = Math.min(100, (tempoTrabalhadoMs / jornadaMetaMs) * 100);
 
-    // --- Lógica Central de Cálculo de Duração ---
-
-    function calcularDuracoes() {
-        const { ENTRADA, SAIDA_ALMOCO, VOLTA_ALMOCO, SAIDA_FINAL } = TIPOS_PONTO;
-
-        const entrada = timeToDate(registroAtual[ENTRADA]);
-        const saidaAlmoco = timeToDate(registroAtual[SAIDA_ALMOCO]);
-        const voltaAlmoco = timeToDate(registroAtual[VOLTA_ALMOCO]);
-        const saidaFinal = timeToDate(registroAtual[SAIDA_FINAL]);
-        const agora = new Date();
-        
-        const jornadaMetaMs = getJornadaMetaMs();
-        
-        let duracaoAlmocoMs = 0;
-        let jornadaLiquidaMs = 0;
-        let saidaSugeridaStr = '--:--';
-        let porcentagem = 0;
-        
-        // 1. CÁLCULO DA DURAÇÃO DO ALMOÇO (BATIDO)
-        if (saidaAlmoco && voltaAlmoco) {
-            duracaoAlmocoMs = voltaAlmoco.getTime() - saidaAlmoco.getTime();
-            if (duracaoAlmocoMs < 0) duracaoAlmocoMs = 0; 
-        }
-        
-        const tempoTotalSubtrairMs = duracaoAlmocoMs; 
-
-        // 2. CÁLCULO DA JORNADA LÍQUIDA
-        if (entrada) {
-            if (saidaFinal) {
-                // Jornada concluída: (Tempo Bruto Total) - (Almoço Batido)
-                jornadaLiquidaMs = (saidaFinal.getTime() - entrada.getTime()) - tempoTotalSubtrairMs;
-            } else {
-                // Jornada em andamento (calcula até agora)
-                let tempoBrutoMs = agora.getTime() - entrada.getTime();
-                jornadaLiquidaMs = tempoBrutoMs; 
-                
-                if (saidaAlmoco && voltaAlmoco) {
-                    jornadaLiquidaMs -= duracaoAlmocoMs; 
-                } else if (saidaAlmoco && !voltaAlmoco) {
-                    // Almoço em andamento: subtrai o tempo até o momento
-                    jornadaLiquidaMs -= (agora.getTime() - saidaAlmoco.getTime());
-                }
-            }
-
-            // Garante que o tempo trabalhado não seja negativo
-            if (jornadaLiquidaMs < 0) jornadaLiquidaMs = 0;
-            
-            // CÁLCULO DA PORCENTAGEM
-            porcentagem = Math.min(100, Math.floor((jornadaLiquidaMs / jornadaMetaMs) * 100)); 
-        }
-        
-        // 3. CÁLCULO DA SAÍDA SUGERIDA
-        if (entrada && voltaAlmoco && !saidaFinal) {
-            // Tempo trabalhado antes do almoço
-            const tempoAntesAlmocoLiquidoMs = saidaAlmoco.getTime() - entrada.getTime();
-            
-            // Tempo restante para completar a jornada meta líquida
-            const tempoRestanteMs = jornadaMetaMs - tempoAntesAlmocoLiquidoMs; 
-            
-            // A Saída Sugerida é a Volta do Almoço + Tempo Restante
-            const saidaSugeriaMs = voltaAlmoco.getTime() + tempoRestanteMs;
-
-            const dataSaidaSugeria = new Date(saidaSugeriaMs);
-            saidaSugeridaStr = `${String(dataSaidaSugeria.getHours()).padStart(2, '0')}:${String(dataSaidaSugeria.getMinutes()).padStart(2, '0')}`;
-        } else if (saidaFinal) {
-             saidaSugeridaStr = registroAtual[SAIDA_FINAL].substring(0, 5); 
-        }
-        
-        // 4. ATUALIZAÇÃO DO DOM (Resumo e Progresso)
-        
-        duracaoAlmocoSpan.textContent = msToTime(duracaoAlmocoMs);
-        jornadaLiquidaSpan.textContent = msToTime(jornadaLiquidaMs);
-        saidaSugeriaSpan.textContent = saidaSugeridaStr;
-        
-        const jornadaMetaFormatada = msToTime(jornadaMetaMs).substring(0, 8); 
-        const tempoLiquidoFormatado = msToTime(jornadaLiquidaMs).substring(0, 8); 
-        
-        jornadaMetaDisplay.textContent = jornadaMetaFormatada.substring(0, 5); 
-        progressoTempo.textContent = `${tempoLiquidoFormatado} de ${jornadaMetaFormatada}`;
-        
         barraPreenchimento.style.width = `${porcentagem}%`;
-        porcentagemProgresso.textContent = `${porcentagem}%`;
+        progressoTexto.textContent = `${porcentagem.toFixed(1)}%`;
+        progressoTempo.textContent = `Tempo trabalhado: ${msToTime(tempoTrabalhadoMs)}`;
 
-        if (porcentagem >= 100) {
-            barraPreenchimento.style.backgroundColor = '#1e7e34'; 
-            porcentagemProgresso.style.color = '#fff';
+        // Atualiza a cor da barra (usando classes Tailwind para as cores)
+        if (porcentagem < 50) {
+            barraPreenchimento.classList.remove('bg-green-500', 'bg-red-600');
+            barraPreenchimento.classList.add('bg-yellow-500'); 
+        } else if (porcentagem < 100) {
+            barraPreenchimento.classList.remove('bg-yellow-500', 'bg-red-600');
+            barraPreenchimento.classList.add('bg-green-500'); 
         } else {
-            barraPreenchimento.style.backgroundColor = '#28a745';
-            porcentagemProgresso.style.color = '#333'; 
-        }
-        
-        const progressoDiv = document.getElementById('progressoJornada');
-        progressoDiv.style.display = entrada ? 'block' : 'none';
-    }
-
-
-    // --- Lógica de Alarmes ---
-    function dispararAlarme(mensagemAlerta, vibracaoPadrao) {
-        somAlerta.play().catch(e => console.log("Não foi possível tocar o som:", e));
-        if ('vibrate' in navigator) {
-            navigator.vibrate(vibracaoPadrao); 
-        }
-        mostrarMensagem(mensagemAlerta, 'erro'); 
-    }
-    
-    function cancelarAlarmes() {
-        if (alarmeEntradaTimeout) clearTimeout(alarmeEntradaTimeout);
-        if (alarme10minAlmocoTimeout) clearTimeout(alarme10minAlmocoTimeout);
-        if (alarme5minAlmocoTimeout) clearTimeout(alarme5minAlmocoTimeout);
-        
-        alarmeEntradaTimeout = null;
-        alarme10minAlmocoTimeout = null;
-        alarme5minAlmocoTimeout = null;
-        
-        if ('vibrate' in navigator) {
-            navigator.vibrate(0); 
-        }
-    }
-
-    function agendarAlarmeEntrada() {
-        if (alarmeEntradaTimeout) clearTimeout(alarmeEntradaTimeout);
-        alarmeEntradaTimeout = null;
-        if (registroAtual[TIPOS_PONTO.ENTRADA]) return;
-        
-        // Lógica de agendamento de alarme de entrada (MANTIDA)
-    }
-
-    function agendarAlarmesAlmocoPorDuracao(saidaAlmocoDate) {
-        cancelarAlarmes(); 
-        
-        const minutosAlmoco = parseInt(inputMinutosAlmoco.value) || 60;
-        const duracaoAlmocoMs = minutosAlmoco * 60 * 1000;
-        
-        const horaVolta = new Date(saidaAlmocoDate.getTime() + duracaoAlmocoMs);
-        const alarme10min = new Date(horaVolta.getTime() - (10 * 60 * 1000));
-        const alarme5min = new Date(horaVolta.getTime() - (5 * 60 * 1000));
-        const agoraMs = new Date().getTime();
-
-        let alarmesAgendados = 0;
-        const vibracaoAlmoco = [500, 200, 500];
-
-        if (alarme10min.getTime() > agoraMs) {
-            alarme10minAlmocoTimeout = setTimeout(() => {
-                dispararAlarme(`🔔 ALERTA: Faltam 10 minutos para a Volta do Almoço (Prevista às ${horaVolta.toLocaleTimeString().substring(0, 5)})!`, vibracaoAlmoco);
-            }, alarme10min.getTime() - agoraMs);
-            alarmesAgendados++;
+            barraPreenchimento.classList.remove('bg-green-500', 'bg-yellow-500');
+            barraPreenchimento.classList.add('bg-red-600'); 
         }
 
-        if (alarme5min.getTime() > agoraMs) {
-            alarme5minAlmocoTimeout = setTimeout(() => {
-                dispararAlarme(`🔔 ALERTA: Faltam 5 minutos para a Volta do Almoço (Prevista às ${horaVolta.toLocaleTimeString().substring(0, 5)})!`, vibracaoAlmoco);
-            }, alarme5min.getTime() - agoraMs);
-            alarmesAgendados++;
-        }
-        
-        if (alarmesAgendados > 0) {
-            mostrarMensagem(`Saída Almoço registrada! ${alarmesAgendados} alarmes agendados. Volta prevista: ${horaVolta.toLocaleTimeString().substring(0, 5)}.`, 'sucesso');
-        } else {
-             mostrarMensagem("Saída Almoço registrada! O tempo de almoço é muito curto para agendar alertas.", 'erro');
-        }
-    }
+        // Atualiza o resumo
+        updateResumo(tempoTrabalhadoMs);
+    };
 
+    const updateResumo = (tempoTrabalhadoMs) => {
+        resumoJornada.style.display = registros.length > 0 ? 'block' : 'none';
+        progressoJornada.style.display = registros.length > 0 ? 'block' : 'none';
 
-    // --- Lógica de Habilitação/Desabilitação dos Botões ---
-
-    function atualizarEstadoBotoes() {
-        const entradaOk = !!registroAtual[TIPOS_PONTO.ENTRADA];
-        const saidaAlmocoOk = !!registroAtual[TIPOS_PONTO.SAIDA_ALMOCO];
-        const voltaAlmocoOk = !!registroAtual[TIPOS_PONTO.VOLTA_ALMOCO];
-        const saidaOk = !!registroAtual[TIPOS_PONTO.SAIDA_FINAL];
-
-        const botoesEcondicoes = [
-            { id: 'btnEntrada', btn: btnEntrada, disabled: entradaOk, msg: 'Entrada já registrada. Limpe para recomeçar.' },
-            { id: 'btnSaidaAlmoco', btn: btnSaidaAlmoco, disabled: !entradaOk || saidaAlmocoOk || saidaOk, msg: !entradaOk ? 'Bata a Entrada primeiro.' : 'Saída almoço já registrada.' },
-            { id: 'btnVoltaAlmoco', btn: btnVoltaAlmoco, disabled: !saidaAlmocoOk || voltaAlmocoOk || saidaOk, msg: !saidaAlmocoOk ? 'Bata a Saída Almoço primeiro.' : 'Volta almoço já registrada.' },
-            { id: 'btnSaida', btn: btnSaida, disabled: !voltaAlmocoOk || saidaOk, msg: !voltaAlmocoOk ? 'Bata a Volta do Almoço primeiro.' : 'Saída final já registrada.' },
-        ];
-
-        botoesEcondicoes.forEach(({ btn, disabled, msg }) => {
-            btn.disabled = disabled;
+        if (registros.length > 0) {
+            const entradaTimestamp = registros.find(r => r.tipo === 'Entrada').timestamp;
+            const entradaDate = new Date(entradaTimestamp);
+            const entradaHoraFormatada = `${entradaDate.getHours().toString().padStart(2, '0')}:${entradaDate.getMinutes().toString().padStart(2, '0')}`;
             
-            if (disabled) {
-                btn.setAttribute('aria-label', msg);
-                btn.setAttribute('title', msg); 
+            entradaRegistrada.textContent = entradaHoraFormatada;
+            metaTotal.textContent = msToTime(jornadaMetaMs).slice(0, 5); // Apenas HH:MM
+            pausaTotal.textContent = msToTime(pausaTotalMs).slice(0, 5); // Apenas HH:MM
+
+            // Cálculo da Saída Sugerida (Entrada + Jornada Meta + Pausa Total)
+            const saidaSugeridaMs = entradaTimestamp + jornadaMetaMs + pausaTotalMs;
+            const saidaSugeridaDate = new Date(saidaSugeridaMs);
+
+            const sh = saidaSugeridaDate.getHours().toString().padStart(2, '0');
+            const sm = saidaSugeridaDate.getMinutes().toString().padStart(2, '0');
+
+            saidaSugeria.textContent = `${sh}:${sm}`;
+        }
+    };
+
+    const exibirMensagem = (texto, tipo = 'sucesso') => {
+        // Limpa classes anteriores e adiciona a classe base e o tipo
+        statusMensagem.textContent = texto;
+        // As classes Tailwind de cor estão no <style> do HTML para simplificar
+        statusMensagem.className = `p-3 mb-4 rounded font-semibold text-center mensagem ${tipo}`;
+        statusMensagem.style.display = 'block';
+
+        // Animação de tremor em caso de erro
+        if (tipo === 'erro') {
+            statusMensagem.classList.add('tremor');
+        } else {
+            statusMensagem.classList.remove('tremor');
+        }
+
+        setTimeout(() => {
+            statusMensagem.style.display = 'none';
+        }, 5000);
+    };
+
+    const updateBotoes = () => {
+        btnEntrada.disabled = true;
+        btnSaidaAlmoco.disabled = true;
+        btnVoltaAlmoco.disabled = true;
+        btnSaida.disabled = true;
+        
+        // Remove animação de todos os botões para resetar
+        btnEntrada.classList.remove('tremor');
+        btnSaidaAlmoco.classList.remove('tremor');
+        btnVoltaAlmoco.classList.remove('tremor');
+        btnSaida.classList.remove('tremor');
+
+
+        switch (estadoAtual) {
+            case 'INICIO':
+                btnEntrada.disabled = false;
+                btnEntrada.classList.add('tremor');
+                break;
+            case 'JORNADA':
+                btnSaidaAlmoco.disabled = false;
+                btnSaida.disabled = false;
+                break;
+            case 'ALMOCO':
+                btnVoltaAlmoco.disabled = false;
+                btnVoltaAlmoco.classList.add('tremor');
+                break;
+            case 'FIM':
+                // Todos desativados
+                break;
+        }
+    };
+
+    const atualizarEstado = () => {
+        const ultimoRegistro = registros[registros.length - 1];
+
+        if (!ultimoRegistro) {
+            estadoAtual = 'INICIO';
+        } else {
+            switch (ultimoRegistro.tipo) {
+                case 'Entrada':
+                case 'Volta Almoço':
+                    estadoAtual = 'JORNADA';
+                    break;
+                case 'Saída Almoço':
+                    estadoAtual = 'ALMOCO';
+                    break;
+                case 'Saída':
+                    estadoAtual = 'FIM';
+                    break;
+                default:
+                    estadoAtual = 'INICIO';
+            }
+        }
+        updateBotoes();
+    };
+
+    // --- Funções de Marcação de Ponto ---
+
+    const registrarPonto = (tipo) => {
+        const timestamp = Date.now();
+        const date = new Date(timestamp);
+        const horario = `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}:${date.getSeconds().toString().padStart(2, '0')}`;
+
+        registros.push({ tipo, horario, timestamp });
+        salvarDados();
+        renderizarRegistros();
+        atualizarEstado();
+        exibirMensagem(`Ponto de ${tipo} registrado com sucesso: ${horario}`);
+    };
+
+    // --- Event Listeners para Botões de Marcação ---
+    btnEntrada.addEventListener('click', () => {
+        if (estadoAtual === 'INICIO') registrarPonto('Entrada');
+        else exibirMensagem('A jornada já foi iniciada.', 'erro');
+    });
+
+    btnSaidaAlmoco.addEventListener('click', () => {
+        if (estadoAtual === 'JORNADA') registrarPonto('Saída Almoço');
+        else exibirMensagem('Você não pode sair para o almoço agora.', 'erro');
+    });
+
+    btnVoltaAlmoco.addEventListener('click', () => {
+        if (estadoAtual === 'ALMOCO') registrarPonto('Volta Almoço');
+        else exibirMensagem('Você não pode voltar do almoço agora.', 'erro');
+    });
+
+    btnSaida.addEventListener('click', () => {
+        if (estadoAtual === 'JORNADA') registrarPonto('Saída');
+        else exibirMensagem('Você não pode finalizar a jornada agora.', 'erro');
+    });
+
+    // --- Funções de Renderização e Persistência ---
+
+    const renderizarRegistros = () => {
+        tabelaRegistros.innerHTML = ''; // Limpa a tabela
+        
+        if (registros.length === 0) {
+            const row = tabelaRegistros.insertRow();
+            const cell = row.insertCell(0);
+            cell.colSpan = 2;
+            cell.textContent = "Nenhum registro de ponto feito hoje.";
+            cell.classList.add('text-center', 'text-gray-500', 'p-3');
+            cell.style.border = 'none'; // Remove borda da célula de mensagem
+            return;
+        }
+
+        registros.forEach((registro, index) => {
+            const row = tabelaRegistros.insertRow();
+            
+            // Adiciona a classe 'ultimo-registro' apenas ao último item (estilizada no <style> do HTML)
+            if (index === registros.length - 1) {
+                row.classList.add('ultimo-registro');
             } else {
-                btn.removeAttribute('aria-label');
-                btn.removeAttribute('title');
+                row.classList.add('bg-white', 'hover:bg-gray-50', 'transition-colors');
             }
+
+            const cellTipo = row.insertCell(0);
+            const cellHorario = row.insertCell(1);
+
+            cellTipo.textContent = registro.tipo;
+            cellHorario.textContent = registro.horario;
+
+            // Adiciona estilos de célula Tailwind
+            cellTipo.classList.add('p-3', 'border', 'border-gray-200');
+            cellHorario.classList.add('p-3', 'border', 'border-gray-200');
         });
-    }
-    
-    // --- Funções de Manipulação de Ponto (Com Validação H) ---
-    
-    function chamarFuncaoPonto(tipo) {
-        const horaAtualFormatada = getHoraFormatada();
-        const horaAtualDate = timeToDate(horaAtualFormatada);
-        
-        let chave;
-        if (tipo.includes(TIPOS_PONTO.ENTRADA)) chave = TIPOS_PONTO.ENTRADA;
-        else if (tipo.includes(TIPOS_PONTO.SAIDA_ALMOCO)) chave = TIPOS_PONTO.SAIDA_ALMOCO;
-        else if (tipo.includes(TIPOS_PONTO.VOLTA_ALMOCO)) chave = TIPOS_PONTO.VOLTA_ALMOCO;
-        else if (tipo.includes(TIPOS_PONTO.SAIDA_FINAL)) chave = TIPOS_PONTO.SAIDA_FINAL;
+    };
 
-        if (!chave) return;
+    const salvarDados = () => {
+        localStorage.setItem('registrosVeritime', JSON.stringify(registros));
+        localStorage.setItem('jornadaHoras', jornadaHorasInput.value);
+        localStorage.setItem('jornadaMinutos', jornadaMinutosInput.value);
+        localStorage.setItem('pausaMinutos', pausaMinutosInput.value);
+        localStorage.setItem('horaEntrada', horaEntradaInput.value);
+        localStorage.setItem('horaSaidaPrevista', horaSaidaPrevistaInput.value);
+    };
 
-        // 1. VALIDAÇÃO DE CLIQUE RÁPIDO / TEMPO NEGATIVO (Implementação H)
-        const pontosEmOrdem = [TIPOS_PONTO.ENTRADA, TIPOS_PONTO.SAIDA_ALMOCO, TIPOS_PONTO.VOLTA_ALMOCO, TIPOS_PONTO.SAIDA_FINAL];
-        const indiceAtual = pontosEmOrdem.indexOf(chave);
+    const carregarDados = () => {
+        const storedRegistros = localStorage.getItem('registrosVeritime');
+        if (storedRegistros) {
+            registros = JSON.parse(storedRegistros);
+        }
+
+        // Carrega e atualiza as configurações
+        jornadaHorasInput.value = localStorage.getItem('jornadaHoras') || '8';
+        jornadaMinutosInput.value = localStorage.getItem('jornadaMinutos') || '0';
+        pausaMinutosInput.value = localStorage.getItem('pausaMinutos') || '60';
+        horaEntradaInput.value = localStorage.getItem('horaEntrada') || '09:00';
+        horaSaidaPrevistaInput.value = localStorage.getItem('horaSaidaPrevista') || '18:00';
+
+        atualizarConfiguracoes();
+        renderizarRegistros();
+        atualizarEstado();
+    };
+
+    const atualizarConfiguracoes = () => {
+        const horas = Number(jornadaHorasInput.value);
+        const minutos = Number(jornadaMinutosInput.value);
+        jornadaMetaMs = (horas * 3600 + minutos * 60) * 1000;
+
+        const pausaMin = Number(pausaMinutosInput.value);
+        pausaTotalMs = pausaMin * 60 * 1000;
+
+        // Atualiza variáveis de referência (sem afetar cálculos por enquanto)
+        entradaHora = horaEntradaInput.value;
+        saidaPrevistaHora = horaSaidaPrevistaInput.value;
         
-        if (indiceAtual > 0) {
-            const pontoAnteriorChave = pontosEmOrdem[indiceAtual - 1];
-            const pontoAnteriorHora = registroAtual[pontoAnteriorChave];
+        salvarDados();
+        updateProgresso(); // Atualiza os cálculos de resumo
+    };
+
+    // --- Event Listeners para Configurações ---
+    document.querySelectorAll('.configuracao input').forEach(input => {
+        input.addEventListener('change', atualizarConfiguracoes);
+    });
+    
+    // --- Botão Limpar ---
+    btnLimpar.addEventListener('click', () => {
+        if (confirm('Tem certeza que deseja limpar todos os registros e configurações? Esta ação é irreversível.')) {
+            localStorage.removeItem('registrosVeritime');
+            localStorage.clear(); // Limpa todas as configurações salvas
             
-            if (pontoAnteriorHora) {
-                const pontoAnteriorDate = timeToDate(pontoAnteriorHora);
-                const diferencaMs = horaAtualDate.getTime() - pontoAnteriorDate.getTime();
-                
-                // Validação de Diferença de Tempo (Mínimo de 1 segundo)
-                if (diferencaMs < 1000) { 
-                    mostrarMensagem(`❌ ERRO: O registro de ${chave} deve ser batido pelo menos 1 segundo após ${pontoAnteriorChave}.`, 'erro');
-                    return; 
-                }
-                
-                // Validação de Tempo Negativo de Intervalo
-                if (chave === TIPOS_PONTO.VOLTA_ALMOCO && diferencaMs < 0) {
-                    mostrarMensagem(`❌ ERRO: O registro de Volta Almoço não pode ser antes do Saída Almoço.`, 'erro');
-                    return; 
-                }
-            }
-        }
-        
-        // 2. REGISTRO
-        adicionarRegistroNaTabela(chave, horaAtualFormatada, true); 
-        
-        if (chave === TIPOS_PONTO.SAIDA_ALMOCO) {
-            const saidaAlmocoDate = timeToDate(horaAtualFormatada);
-            agendarAlarmesAlmocoPorDuracao(saidaAlmocoDate);
-        } else if (chave === TIPOS_PONTO.VOLTA_ALMOCO) {
-            cancelarAlarmes();
-        }
+            // Reseta variáveis e inputs para o padrão
+            registros = [];
+            jornadaMetaMs = (8 * 60 + 0) * 60 * 1000;
+            pausaTotalMs = 60 * 60 * 1000;
+            jornadaHorasInput.value = 8;
+            jornadaMinutosInput.value = 0;
+            pausaMinutosInput.value = 60;
 
-        mostrarMensagem(`${chave} registrada com sucesso!`, 'sucesso');
-        atualizarEstadoBotoes();
-    }
-    
-    function limparRegistros() {
-        if (confirm("Tem certeza que deseja limpar todos os registros do dia?")) {
-            tabelaCorpo.innerHTML = ''; 
-            registroAtual = { 
-                [TIPOS_PONTO.ENTRADA]: null,
-                [TIPOS_PONTO.SAIDA_ALMOCO]: null,
-                [TIPOS_PONTO.VOLTA_ALMOCO]: null,
-                [TIPOS_PONTO.SAIDA_FINAL]: null
-            }; 
-            cancelarAlarmes(); 
-            salvarEstado(); 
-            agendarAlarmeEntrada();
-            mostrarMensagem("Registros limpos. Aguardando a Entrada.", 'erro');
-            atualizarEstadoBotoes(); 
-            calcularDuracoes(); 
-        }
-    }
+            carregarDados(); // Recarrega para resetar a UI
+            renderizarRegistros();
+            atualizarEstado();
+            updateProgresso();
 
-    // --- Inicialização e Event Listeners ---
-    
-    function configurarListenersBotoes() {
-        [btnEntrada, btnSaidaAlmoco, btnVoltaAlmoco, btnSaida].forEach(btn => {
-            btn.addEventListener('click', () => {
-                if (btn.disabled) {
-                    const msg = btn.getAttribute('aria-label') || 'Ação fora de ordem.';
-                    mostrarMensagem(msg, 'erro');
-                    btn.classList.add('tremor');
-                    setTimeout(() => btn.classList.remove('tremor'), 600);
-                } else {
-                    const tipo = btn.textContent.trim(); 
-                    chamarFuncaoPonto(tipo);
-                }
-            });
-        });
-        
-        btnLimpar.addEventListener('click', limparRegistros);
-        
-        // Adiciona listeners para salvar a configuração (Jornada, Referência, Almoço)
-        [inputHoraEntrada, inputHoraSaida, inputMinutosAlmoco, inputJornadaHoras, inputJornadaMinutos].forEach(input => {
-            input.addEventListener('change', () => {
-                salvarEstado(); 
-                agendarAlarmeEntrada(); 
-                calcularDuracoes(); 
-            });
-        });
-    }
-    
-    // --- Fluxo de Inicialização ---
-    carregarEstado();
-    configurarListenersBotoes();
-    atualizarEstadoBotoes(); 
-    agendarAlarmeEntrada(); 
+            exibirMensagem('Todos os dados foram limpos com sucesso.', 'sucesso');
+        }
+    });
+
+    // --- Inicialização ---
+    carregarDados();
+    // Inicia o relógio e o loop de atualização do progresso
+    updateRelogio();
+    timerInterval = setInterval(updateRelogio, 1000); 
 });
