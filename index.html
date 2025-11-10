@@ -10,40 +10,51 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <link rel="stylesheet" href="style.css"> 
-
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        body {
-            font-family: 'Montserrat', sans-serif; 
-        }
-        /* Estilo para inputs de tempo e número no mobile, removendo setas */
-        input[type="time"], input[type="number"] {
-            appearance: none;
-        }
+        body { font-family: 'Montserrat', sans-serif; }
+        .mensagem.sucesso { background-color: #d1fae5; color: #065f46; border: 1px solid #34d399; }
+        .mensagem.erro { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
+        .ultimo-registro { background-color: #fef3c7; font-weight: bold; border-left: 5px solid #fbbf24; }
         
-        /* Classes de feedback manipuladas pelo JS (cores Tailwind) */
-        .mensagem.sucesso {
-            background-color: #d1fae5; /* green-100 */
-            color: #065f46; /* green-700 */
-            border: 1px solid #34d399; /* green-400 */
-        }
-        .mensagem.erro {
-            background-color: #fee2e2; /* red-100 */
-            color: #991b1b; /* red-700 */
-            border: 1px solid #f87171; /* red-400 */
-        }
-        .ultimo-registro {
-            background-color: #fef3c7; /* yellow-100 */
-            font-weight: bold;
-            border-left: 5px solid #fbbf24; /* yellow-400 */
+        /* Estilos do Menu Hambúrguer */
+        #menuHambuguer { position: absolute; top: 1.5rem; right: 1.5rem; z-index: 10; }
+        #menuDropdown { right: 0; top: 100%; }
+        
+        /* Efeito de tremor para botões ativos */
+        .tremor { animation: tremor-animation 0.5s ease-in-out infinite alternate; }
+        @keyframes tremor-animation {
+            from { transform: translateX(-1px); }
+            to { transform: translateX(1px); }
         }
     </style>
 </head>
 <body class="bg-gray-100 flex flex-col justify-center items-center p-4 min-h-screen">
     
-    <div class="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-lg mx-auto my-6">
+    <div class="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-lg mx-auto my-6 relative">
         
+        <div id="menuHambuguer" class="relative">
+            <button id="btnMenu" class="text-gray-600 hover:text-blue-600 focus:outline-none">
+                <i class="fas fa-bars text-3xl"></i>
+            </button>
+            <div id="menuDropdown" class="hidden absolute w-48 bg-white rounded-lg shadow-xl py-2 mt-2 border border-gray-200">
+                
+                <a href="resumo.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <i class="fas fa-chart-line mr-2"></i> Resumo Diário
+                </a>
+                
+                <a href="configuracoes.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <i class="fas fa-cogs mr-2"></i> Configurações
+                </a>
+                
+                <a href="ajuda.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                    <i class="fas fa-info-circle mr-2"></i> Ajuda
+                </a>
+            </div>
+        </div>
+
         <header>
             <h1 class="text-4xl md:text-5xl font-extrabold text-blue-600 text-center uppercase tracking-widest mt-4 mb-1">
                 <i class="fas fa-clock text-3xl md:text-4xl mr-2"></i> VERITIME
@@ -51,7 +62,7 @@
             <p class="text-gray-500 text-center text-lg italic mb-6">O tempo no seu controle</p>
         </header>
 
-        <div id="relogio" class="text-4xl font-bold text-center p-4 border-2 border-blue-500 rounded-lg bg-gray-100 text-gray-800 my-6 shadow-inner">
+        <div id="relogio" class="text-4xl font-bold text-center p-4 border-2 border-blue-500 rounded-lg bg-gray-100 text-gray-800 my-6 shadow-inner relative">
             00:00:00
         </div>
 
@@ -92,49 +103,13 @@
             </div>
             <p id="progressoTempo" class="text-gray-700 font-medium">Tempo trabalhado: 00:00:00</p>
         </div>
-
-        <div id="resumoJornada" class="mt-6 p-5 border-2 border-blue-500 rounded-lg bg-blue-100/50" style="display: none;">
-            <h2 class="text-xl font-bold text-blue-700 mb-3 text-center border-b-2 border-blue-300 pb-2">Resumo da Jornada</h2>
-            <p class="mb-2 text-gray-700">Jornada Meta: <span id="metaTotal" class="font-bold text-gray-800">08:00</span></p>
-            <p class="mb-3 text-gray-700">Tempo de Pausa (Almoço): <span id="pausaTotal" class="font-bold text-gray-800">01:00</span></p>
-            <p class="mb-4 text-gray-700">Horário de Entrada: <span id="entradaRegistrada" class="font-bold text-gray-800">--:--</span></p>
-            <p class="pt-3 border-t border-blue-300 font-bold text-lg text-gray-800">
-                Saída Sugerida: <span id="saidaSugeria" class="text-red-600 ml-1">--:--</span>
-            </p>
-        </div>
-
-        <div class="configuracao mt-8">
-            <h2 class="text-2xl font-bold text-blue-600 mb-5 text-center">Configurações</h2>
+        
+        <div class="mt-8 p-5 border border-red-300 rounded-lg bg-red-50/50 shadow-inner">
+            <h3 class="text-xl font-bold text-red-700 mb-4 text-center">Controles Rápidos</h3>
             
-            <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg shadow-inner mb-4">
-                <label for="jornadaHoras" class="font-bold text-gray-700 col-span-2 text-center">Jornada Meta</label>
-                <div class="col-span-1">
-                    <label for="jornadaHoras" class="text-sm text-gray-600">Horas</label>
-                    <input type="number" id="jornadaHoras" value="8" min="0" max="24" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <div class="col-span-1">
-                    <label for="jornadaMinutos" class="text-sm text-gray-600">Minutos</label>
-                    <input type="number" id="jornadaMinutos" value="0" min="0" max="59" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                </div>
-            </div>
-
-            <h3 class="text-base font-bold text-gray-700 mt-6 mb-3 border-t pt-4">Horários de Referência (Previsão)</h3>
-            <div class="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg shadow-inner mb-4">
-                <label for="horaEntrada" class="font-bold text-gray-700">Entrada:</label>
-                <input type="time" id="horaEntrada" value="09:00" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-                <label for="horaSaidaPrevista" class="font-bold text-gray-700">Saída Prevista:</label>
-                <input type="time" id="horaSaidaPrevista" value="18:00" class="w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500">
-            </div>
-
-            <h3 class="text-base font-bold text-gray-700 mt-6 mb-3 border-t pt-4">Duração do Intervalo</h3>
-            <div class="flex flex-col items-center p-4 bg-gray-50 rounded-lg shadow-inner">
-                <div class="w-full max-w-xs mb-4">
-                    <label for="pausaMinutos" class="font-bold text-gray-700 block text-center mb-1">Almoço (min):</label>
-                    <input type="number" id="pausaMinutos" value="60" min="0" max="180" class="w-full p-2 border border-gray-300 rounded-md text-center focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                
-                <div class="flex items-center space-x-3 mt-2">
-                    <span class="font-bold text-gray-700">Alarme de Volta (5 min antes):</span>
+            <div class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 shadow-md mb-4">
+                 <div class="flex items-center space-x-3 w-full justify-center">
+                    <span class="font-bold text-gray-700 text-lg">Alarme Volta (5 min antes):</span>
                     <label class="switch">
                         <input type="checkbox" id="toggleAlarmePausa">
                         <span class="slider round"></span>
@@ -142,17 +117,16 @@
                 </div>
                 <p id="statusAlarmePausa" class="text-sm text-gray-500 mt-2 italic">Desativado</p>
             </div>
-            </div>
 
-        <button id="btnLimpar" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg mt-8 transition-colors">
-            Limpar Todos os Dados e Configurações
-        </button>
-        
+            <button id="btnLimpar" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg mt-4 transition-colors">
+                <i class="fas fa-trash mr-2"></i> Limpar TODOS os Dados
+            </button>
+        </div>
         <footer class="mt-8 p-4 text-sm text-gray-500 text-center bg-gray-100 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
             <p>&copy; 2025 Veritime | Criado por **Renato Paiva, Dev**</p>
         </footer>
     </div>
     
-    <script src="script.js"></script>
+    <script src="script.js" defer></script> 
 </body>
 </html>
