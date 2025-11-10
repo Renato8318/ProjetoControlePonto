@@ -12,6 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const saidaSugeria = document.getElementById('saidaSugeria');
     const metaTotal = document.getElementById('metaTotal');
     const pausaTotal = document.getElementById('pausaTotal');
+    // NOVOS ELEMENTOS DOM para o alarme
+    const toggleAlarmePausa = document.getElementById('toggleAlarmePausa'); 
+    const statusAlarmePausa = document.getElementById('statusAlarmePausa'); 
 
     // --- Configurações Input ---
     const jornadaHorasInput = document.getElementById('jornadaHoras');
@@ -35,6 +38,12 @@ document.addEventListener('DOMContentLoaded', () => {
     let saidaPrevistaHora = '18:00';
     let estadoAtual = 'INICIO'; // INICIO, JORNADA, ALMOCO, FIM
     let timerInterval = null;
+    
+    // NOVAS VARIÁVEIS DE ESTADO para o alarme
+    let alarmePausaAtivo = false; 
+    let alarmeTimeout = null; 
+    const audioAlarme = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'); // URL de som simples para teste
+
 
     // --- Funções de Utilitários de Tempo ---
 
@@ -100,6 +109,66 @@ document.addEventListener('DOMContentLoaded', () => {
             updateProgresso();
         }
     };
+    
+    // --- LÓGICA DO ALARME DE PAUSA (NOVA FUNÇÃO) ---
+    const updateAlarmePausaUI = () => {
+        if (alarmePausaAtivo) {
+            statusAlarmePausa.textContent = 'Alarme ATIVADO';
+            statusAlarmePausa.classList.remove('text-gray-500');
+            statusAlarmePausa.classList.add('text-green-600', 'font-semibold');
+        } else {
+            statusAlarmePausa.textContent = 'Desativado';
+            statusAlarmePausa.classList.remove('text-green-600', 'font-semibold');
+            statusAlarmePausa.classList.add('text-gray-500');
+        }
+    };
+    
+    const handleAlarmePausa = () => {
+        // 1. Limpa qualquer alarme pendente
+        if (alarmeTimeout) {
+            clearTimeout(alarmeTimeout);
+            alarmeTimeout = null;
+        }
+
+        // 2. Só configura se o alarme estiver ativo E se o estado for ALMOCO
+        if (alarmePausaAtivo && estadoAtual === 'ALMOCO') {
+            const ultimoRegistro = registros[registros.length - 1]; // Deve ser 'Saída Almoço'
+            if (!ultimoRegistro || ultimoRegistro.tipo !== 'Saída Almoço') return;
+
+            const saidaAlmocoMs = ultimoRegistro.timestamp;
+            const pausaMin = Number(pausaMinutosInput.value);
+            const pausaTotalMs = pausaMin * 60 * 1000;
+            
+            // O alarme deve tocar 5 minutos ANTES do fim da pausa
+            const alarmeAtrasoMs = 5 * 60 * 1000; 
+
+            // Horário do Alarme = (Saída Almoço + Duração Total da Pausa) - 5 minutos
+            const horarioAlarmeMs = saidaAlmocoMs + pausaTotalMs - alarmeAtrasoMs;
+            
+            const agoraMs = Date.now();
+            const tempoRestanteParaAlarme = horarioAlarmeMs - agoraMs;
+
+            if (tempoRestanteParaAlarme > 0) {
+                // Configura o timer
+                alarmeTimeout = setTimeout(() => {
+                    audioAlarme.play();
+                    exibirMensagem('🚨 Faltam 5 minutos para o fim do intervalo!', 'erro'); // Usa 'erro' para cor de destaque
+                }, tempoRestanteParaAlarme);
+                
+                // Atualiza a UI para mostrar que o alarme está agendado
+                statusAlarmePausa.textContent = `Alarme agendado! Toca em: ${msToTime(tempoRestanteParaAlarme).slice(0, 5)} (restante)`;
+
+            } else {
+                // Se o horário de alarme já passou (usuário atrasado ou marcou pausa há muito tempo)
+                statusAlarmePausa.textContent = 'Intervalo excedido ou finalizado.';
+            }
+        } else {
+             // Alarme ativo, mas estado errado (INICIO, JORNADA, FIM)
+             updateAlarmePausaUI();
+        }
+    };
+    // --- FIM DA LÓGICA DO ALARME DE PAUSA ---
+
 
     const updateProgresso = () => {
         const tempoTrabalhadoMs = calcularTempoTrabalhado(registros);
@@ -150,13 +219,10 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const exibirMensagem = (texto, tipo = 'sucesso') => {
-        // Limpa classes anteriores e adiciona a classe base e o tipo
         statusMensagem.textContent = texto;
-        // As classes Tailwind de cor estão no <style> do HTML para simplificar
         statusMensagem.className = `p-3 mb-4 rounded font-semibold text-center mensagem ${tipo}`;
         statusMensagem.style.display = 'block';
 
-        // Animação de tremor em caso de erro
         if (tipo === 'erro') {
             statusMensagem.classList.add('tremor');
         } else {
@@ -174,7 +240,6 @@ document.addEventListener('DOMContentLoaded', () => {
         btnVoltaAlmoco.disabled = true;
         btnSaida.disabled = true;
         
-        // Remove animação de todos os botões para resetar
         btnEntrada.classList.remove('tremor');
         btnSaidaAlmoco.classList.remove('tremor');
         btnVoltaAlmoco.classList.remove('tremor');
@@ -222,6 +287,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         updateBotoes();
+        handleAlarmePausa(); // ATUALIZADO: Verifica/reconfigura o alarme ao mudar de estado
     };
 
     // --- Funções de Marcação de Ponto ---
@@ -303,6 +369,7 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('pausaMinutos', pausaMinutosInput.value);
         localStorage.setItem('horaEntrada', horaEntradaInput.value);
         localStorage.setItem('horaSaidaPrevista', horaSaidaPrevistaInput.value);
+        localStorage.setItem('alarmePausaAtivo', alarmePausaAtivo); // NOVO
     };
 
     const carregarDados = () => {
@@ -317,10 +384,16 @@ document.addEventListener('DOMContentLoaded', () => {
         pausaMinutosInput.value = localStorage.getItem('pausaMinutos') || '60';
         horaEntradaInput.value = localStorage.getItem('horaEntrada') || '09:00';
         horaSaidaPrevistaInput.value = localStorage.getItem('horaSaidaPrevista') || '18:00';
+        
+        // Carrega e atualiza o estado do alarme (NOVO)
+        const storedAlarme = localStorage.getItem('alarmePausaAtivo');
+        alarmePausaAtivo = storedAlarme === 'true'; 
+        toggleAlarmePausa.checked = alarmePausaAtivo;
 
         atualizarConfiguracoes();
         renderizarRegistros();
         atualizarEstado();
+        updateAlarmePausaUI(); // Chama a nova função para atualizar o texto do status
     };
 
     const atualizarConfiguracoes = () => {
@@ -337,6 +410,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         salvarDados();
         updateProgresso(); // Atualiza os cálculos de resumo
+        handleAlarmePausa(); // Re-checa o alarme se as configurações de tempo mudarem
     };
 
     // --- Event Listeners para Configurações ---
@@ -344,6 +418,18 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('change', atualizarConfiguracoes);
     });
     
+    // --- Event Listener para o Alarme de Pausa (NOVO) ---
+    toggleAlarmePausa.addEventListener('change', () => {
+        alarmePausaAtivo = toggleAlarmePausa.checked;
+        salvarDados();
+        updateAlarmePausaUI();
+        handleAlarmePausa();
+        // Se desativar, limpa a mensagem de agendamento
+        if (!alarmePausaAtivo) {
+            statusAlarmePausa.textContent = 'Desativado';
+        }
+    });
+
     // --- Botão Limpar ---
     btnLimpar.addEventListener('click', () => {
         if (confirm('Tem certeza que deseja limpar todos os registros e configurações? Esta ação é irreversível.')) {
@@ -357,6 +443,12 @@ document.addEventListener('DOMContentLoaded', () => {
             jornadaHorasInput.value = 8;
             jornadaMinutosInput.value = 0;
             pausaMinutosInput.value = 60;
+            
+            // Também reseta o alarme (NOVO)
+            if (alarmeTimeout) clearTimeout(alarmeTimeout);
+            alarmePausaAtivo = false;
+            toggleAlarmePausa.checked = false;
+
 
             carregarDados(); // Recarrega para resetar a UI
             renderizarRegistros();
