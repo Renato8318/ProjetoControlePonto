@@ -29,7 +29,7 @@
 </head>
 <body class="bg-gray-100 flex flex-col justify-center items-center p-4 min-h-screen">
     
-    <div class="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-lg mx-auto my-6 relative">
+    <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-lg mx-auto my-6 relative">
         
         <div class="flex justify-between items-center w-full mb-4 mt-2"> 
             
@@ -65,16 +65,16 @@
         </div>
 
         <div class="flex flex-wrap justify-between gap-2 my-6">
-            <button id="btnEntrada" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors w-full sm:w-[calc(50%-4px)]">
+            <button id="btnEntrada" class="bg-green-600 hover:bg-green-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
                 Entrada (Início)
             </button>
-            <button id="btnSaidaAlmoco" class="bg-yellow-500 hover:bg-yellow-600 text-gray-800 font-bold py-3 px-4 rounded-lg shadow-md transition-colors w-full sm:w-[calc(50%-4px)]">
+            <button id="btnSaidaAlmoco" class="bg-yellow-500 hover:bg-yellow-600 text-gray-800 font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
                 Saída Almoço
             </button>
-            <button id="btnVoltaAlmoco" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors w-full sm:w-[calc(50%-4px)]">
+            <button id="btnVoltaAlmoco" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
                 Volta Almoço
             </button>
-            <button id="btnSaida" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors w-full sm:w-[calc(50%-4px)]">
+            <button id="btnSaida" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
                 Saída (Fim)
             </button>
         </div>
@@ -93,7 +93,7 @@
                 </tbody>
         </table>
 
-        <div id="progressoJornada" class="mt-8 p-5 border border-blue-400 rounded-lg bg-blue-50 text-center" style="display: none;">
+        <div id="progressoJornada" class="mt-8 p-5 border border-gray-300 rounded-lg bg-gray-50 text-center" style="display: none;">
             <h3 class="text-lg font-semibold text-blue-700 mb-3">Progresso da Jornada</h3>
             <div class="w-full h-8 bg-gray-300 rounded-full overflow-hidden mb-2 relative">
                 <div id="barraPreenchimento" class="h-full bg-green-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
@@ -105,7 +105,7 @@
         <div class="mt-8 p-5 border border-red-300 rounded-lg bg-red-50/50 shadow-inner">
             <h3 class="text-xl font-bold text-red-700 mb-4 text-center">Controles Rápidos</h3>
             
-            <div class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 shadow-md mb-4">
+            <div class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 shadow-inner mb-4">
                  <div class="flex items-center space-x-3 w-full justify-center">
                     <span class="font-bold text-gray-700 text-lg">Alarme Volta (5 min antes):</span>
                     <label class="switch">
@@ -116,7 +116,7 @@
                 <p id="statusAlarmePausa" class="text-sm text-gray-500 mt-2 italic">Desativado</p>
             </div>
 
-            <button id="btnLimpar" class="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-lg mt-4 transition-colors">
+            <button id="btnLimpar" class="w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg mt-4 transition-colors">
                 <i class="fas fa-trash mr-2"></i> Limpar TODOS os Dados
             </button>
         </div>

@@ -1,32 +1,28 @@
-/* Este arquivo agora contém apenas estilos que não são facilmente cobertos pelo Tailwind */
+/*
+ * Arquivo: style.css
+ * Estilos customizados para elementos não nativos do Tailwind
+ */
 
-/* Animação para feedback de erro/botão ativo */
-@keyframes tremor {
-    0% { transform: translate(1px, 1px) rotate(0deg); }
-    25% { transform: translate(-1px, -2px) rotate(-1deg); }
-    50% { transform: translate(1px, -1px) rotate(1deg); }
-    75% { transform: translate(-1px, 1px) rotate(0deg); }
-    100% { transform: translate(1px, -2px) rotate(-1deg); }
-}
-.tremor {
-    animation: tremor 0.3s ease-in-out 2; 
-}
+/* ============================= */
+/* 1. ESTILO DO SWITCH (TOGGLE)  */
+/* ============================= */
 
-
-/* --- Estilos para o Toggle Switch (Alarme de Pausa) --- */
+/* Contêiner principal do switch */
 .switch {
     position: relative;
     display: inline-block;
-    width: 48px;
-    height: 24px;
+    width: 60px; /* Largura total do switch */
+    height: 34px; /* Altura total do switch */
 }
 
+/* Esconde o checkbox HTML padrão */
 .switch input {
     opacity: 0;
     width: 0;
     height: 0;
 }
 
+/* O SLIDER (O CORPO DO SWITCH) */
 .slider {
     position: absolute;
     cursor: pointer;
@@ -34,36 +30,37 @@
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc; /* gray-400 */
+    background-color: #ccc; /* Cinza claro quando DESATIVADO */
     transition: .4s;
+    box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
+/* O CÍRCULO (INDICADOR) */
 .slider:before {
     position: absolute;
     content: "";
-    height: 18px;
-    width: 18px;
-    left: 3px;
-    bottom: 3px;
+    height: 26px;
+    width: 26px;
+    left: 4px; /* Posição inicial do círculo */
+    bottom: 4px;
     background-color: white;
     transition: .4s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
+/* Quando o input está CHECADO (ATIVADO) */
 input:checked + .slider {
-    background-color: #10B981; /* emerald-500 (cor de sucesso) */
+    background-color: #2563EB; /* Azul primário (blue-600 do Tailwind) */
 }
 
-input:focus + .slider {
-    box-shadow: 0 0 1px #10B981;
-}
-
+/* Transição do círculo quando ativado */
 input:checked + .slider:before {
-    transform: translateX(24px);
+    transform: translateX(26px); /* Move o círculo para a direita */
 }
 
-/* Rounded sliders */
+/* Formato Arredondado (ROUND) */
 .slider.round {
-    border-radius: 24px;
+    border-radius: 34px;
 }
 
 .slider.round:before {
