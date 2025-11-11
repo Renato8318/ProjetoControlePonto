@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const pausaTotalDisplay = document.getElementById('pausaTotal');
     const erroResumo = document.getElementById('erroResumo');
     
-    // NOVO ELEMENTO
+    // Elemento do Último Registro
     const ultimoRegistroDisplay = document.getElementById('ultimoRegistroDisplay'); 
 
     // --- Funções de Utilitários de Tempo ---

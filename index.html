@@ -19,10 +19,6 @@
         .mensagem.erro { background-color: #fee2e2; color: #991b1b; border: 1px solid #f87171; }
         .ultimo-registro { background-color: #fef3c7; font-weight: bold; border-left: 5px solid #fbbf24; }
         
-        /* Estilos do Menu Hambúrguer */
-        #menuHambuguer { position: absolute; top: 1.5rem; right: 1.5rem; z-index: 10; }
-        #menuDropdown { right: 0; top: 100%; }
-        
         /* Efeito de tremor para botões ativos */
         .tremor { animation: tremor-animation 0.5s ease-in-out infinite alternate; }
         @keyframes tremor-animation {
@@ -35,33 +31,35 @@
     
     <div class="bg-white p-6 md:p-8 rounded-xl shadow-2xl w-full max-w-lg mx-auto my-6 relative">
         
-        <div id="menuHambuguer" class="relative">
-            <button id="btnMenu" class="text-gray-600 hover:text-blue-600 focus:outline-none">
-                <i class="fas fa-bars text-3xl"></i>
-            </button>
-            <div id="menuDropdown" class="hidden absolute w-48 bg-white rounded-lg shadow-xl py-2 mt-2 border border-gray-200">
-                
-                <a href="resumo.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                    <i class="fas fa-chart-line mr-2"></i> Resumo Diário
-                </a>
-                
-                <a href="configuracoes.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                    <i class="fas fa-cogs mr-2"></i> Configurações
-                </a>
-                
-                <a href="ajuda.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
-                    <i class="fas fa-info-circle mr-2"></i> Ajuda
-                </a>
+        <div class="flex justify-between items-center w-full mb-4 mt-2"> 
+            
+            <header class="flex-grow text-center min-w-0">
+                <h1 class="text-4xl md:text-5xl font-extrabold text-blue-600 uppercase tracking-widest leading-none">
+                    <i class="fas fa-clock text-3xl md:text-4xl mr-1"></i> VERITIME
+                </h1>
+                <p class="text-gray-500 text-sm italic">O tempo no seu controle</p>
+            </header>
+            
+            <div id="menuHambuguer" class="relative ml-2 z-50"> 
+                <button id="btnMenu" class="text-gray-600 hover:text-blue-600 focus:outline-none p-1">
+                    <i class="fas fa-bars text-3xl"></i>
+                </button>
+                <div id="menuDropdown" class="hidden absolute w-48 bg-white rounded-lg shadow-xl py-2 mt-2 border border-gray-200 right-0 top-full">
+                    
+                    <a href="resumo.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                        <i class="fas fa-chart-line mr-2"></i> Resumo Diário
+                    </a>
+                    
+                    <a href="configuracoes.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                        <i class="fas fa-cogs mr-2"></i> Configurações
+                    </a>
+                    
+                    <a href="ajuda.html" class="block px-4 py-2 text-gray-800 hover:bg-gray-100">
+                        <i class="fas fa-info-circle mr-2"></i> Ajuda
+                    </a>
+                </div>
             </div>
         </div>
-
-        <header>
-            <h1 class="text-4xl md:text-5xl font-extrabold text-blue-600 text-center uppercase tracking-widest mt-4 mb-1">
-                <i class="fas fa-clock text-3xl md:text-4xl mr-2"></i> VERITIME
-            </h1>
-            <p class="text-gray-500 text-center text-lg italic mb-6">O tempo no seu controle</p>
-        </header>
-
         <div id="relogio" class="text-4xl font-bold text-center p-4 border-2 border-blue-500 rounded-lg bg-gray-100 text-gray-800 my-6 shadow-inner relative">
             00:00:00
         </div>
