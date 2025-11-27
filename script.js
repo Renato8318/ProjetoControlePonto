@@ -153,10 +153,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const updateBotoes = () => {
         if (!btnEntrada) return; // Só executa na página principal
         const ultimoTipo = registros.length > 0 ? registros[registros.length - 1].tipo : null;
+        
+        // Primeiro, reseta o estado de todos os botões
+        const todosBotoes = [btnEntrada, btnSaidaAlmoco, btnVoltaAlmoco, btnSaida];
+        todosBotoes.forEach(btn => btn.classList.remove('tremor'));
 
+        // Habilita/desabilita e aplica o destaque
         btnEntrada.disabled = ultimoTipo !== null;
+        if (!btnEntrada.disabled) btnEntrada.classList.add('tremor');
+
         btnSaidaAlmoco.disabled = !(ultimoTipo === 'Entrada' || ultimoTipo === 'Volta Almoço');
+        if (!btnSaidaAlmoco.disabled) btnSaidaAlmoco.classList.add('tremor');
+
         btnVoltaAlmoco.disabled = ultimoTipo !== 'Saída Almoço';
+        if (!btnVoltaAlmoco.disabled) btnVoltaAlmoco.classList.add('tremor');
 
         // NOVA REGRA: Só pode registrar a saída final se o último ponto foi a volta do almoço.
         // Isso força o usuário a completar o ciclo de intervalo.
@@ -171,6 +181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tr.className = 'border-b border-gray-200';
             if (index === registros.length - 1) {
                 tr.classList.add('ultimo-registro');
+                tr.classList.add('novo-registro-anim'); // Adiciona a classe de animação
             }
             tr.innerHTML = `
                 <td class="p-3">${registro.tipo}</td>
@@ -295,6 +306,69 @@ document.addEventListener('DOMContentLoaded', () => {
             tempoAlarmePausaSelect.addEventListener('change', () => {
                 localStorage.setItem('tempoAlarmePausa', tempoAlarmePausaSelect.value);
                 verificarAlarmePausa(); // Recalcula o alarme com o novo tempo
+            });
+        }
+
+        // Lógica para o Acordeão de Registros
+        const toggleRegistrosBtn = document.getElementById('toggleRegistros');
+        if (toggleRegistrosBtn) {
+            const painelRegistros = document.getElementById('painelRegistros');
+            const caretIcon = document.getElementById('caretIcon');
+            toggleRegistrosBtn.addEventListener('click', () => {
+                painelRegistros.classList.toggle('hidden');
+                caretIcon.classList.toggle('rotate-180');
+            });
+        }
+
+        // Lógica para Exportar CSV
+        const btnExportarCSV = document.getElementById('btnExportarCSV');
+        if (btnExportarCSV) {
+            btnExportarCSV.addEventListener('click', (e) => {
+                e.preventDefault();
+                if (registros.length === 0) {
+                    exibirMensagem('Não há registros para exportar.', 'erro');
+                    return;
+                }
+
+                // Cabeçalho do CSV
+                let csvContent = "data:text/csv;charset=utf-8,Tipo,Data,Horario\n";
+
+                // Adiciona as linhas
+                registros.forEach(registro => {
+                    const data = new Date(registro.timestamp).toLocaleDateString('pt-BR');
+                    const linha = `${registro.tipo},${data},${registro.horario}\n`;
+                    csvContent += linha;
+                });
+
+                // Cria um link temporário e simula o clique para fazer o download
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", `registros_ponto_${HOJE}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            });
+        }
+
+        // Lógica para o Modo Escuro
+        const toggleDarkMode = document.getElementById('toggleDarkMode');
+        if (toggleDarkMode) {
+            // LÓGICA DE INICIALIZAÇÃO SIMPLIFICADA: O padrão é sempre o modo claro.
+            // Apenas ativa o modo escuro se o usuário já o habilitou e salvou no localStorage.
+            if (localStorage.getItem('darkMode') === 'enabled') {
+                document.documentElement.classList.add('dark');
+                toggleDarkMode.checked = true;
+            }
+
+            toggleDarkMode.addEventListener('change', () => {
+                if (toggleDarkMode.checked) {
+                    document.documentElement.classList.add('dark');
+                    localStorage.setItem('darkMode', 'enabled');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                    localStorage.setItem('darkMode', 'disabled');
+                }
             });
         }
 
