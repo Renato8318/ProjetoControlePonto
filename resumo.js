@@ -5,9 +5,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const metaTotal = document.getElementById('metaTotal');
     const pausaTotalDisplay = document.getElementById('pausaTotal');
     const erroResumo = document.getElementById('erroResumo');
-    
-    // Elemento do Último Registro
-    const ultimoRegistroDisplay = document.getElementById('ultimoRegistroDisplay'); 
+    // A linha abaixo causava o erro, pois o elemento não existe no resumo.html
 
     // --- Funções de Utilitários de Tempo ---
     const msToTime = (ms) => {
@@ -18,72 +16,36 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${pad(hours)}:${pad(minutes)}`; // Apenas HH:MM para exibição
     };
 
-    // --- Funções de Estado e UI ---
-    
-    const exibirErro = (texto) => {
-        erroResumo.textContent = texto;
-        erroResumo.style.display = 'block';
-    };
-
     const carregarResumo = () => {
-        // Carrega Configurações
+        // Carrega Configurações LOCAIS
         const horas = Number(localStorage.getItem('jornadaHoras') || '8');
         const minutos = Number(localStorage.getItem('jornadaMinutos') || '0');
         const jornadaMetaMs = (horas * 3600 + minutos * 60) * 1000;
 
         const pausaMin = Number(localStorage.getItem('pausaMinutos') || '60');
-        const pausaTotalMs = pausaMin * 60 * 1000; 
-
-        // Carrega Registros
-        const storedRegistros = localStorage.getItem('registrosVeritime');
-        const registros = storedRegistros ? JSON.parse(storedRegistros) : [];
-
-        // Encontra o registro de entrada e o último registro
-        const entradaRegistro = registros.find(r => r.tipo === 'Entrada');
-        const ultimoRegistro = registros.length > 0 ? registros[registros.length - 1] : null;
-
-        // 1. ATUALIZA ÚLTIMO REGISTRO
-        if (ultimoRegistro) {
-            // Exibe o tipo e horário do último registro. Ex: "Entrada às 20:49"
-            ultimoRegistroDisplay.textContent = `${ultimoRegistro.tipo} às ${ultimoRegistro.horario.slice(0, 5)}`;
-        } else {
-            ultimoRegistroDisplay.textContent = 'Nenhum ponto registrado.';
-        }
-
+        const pausaTotalMs = pausaMin * 60 * 1000;
 
         // Atualiza UI com as Metas e Pausa
         metaTotal.textContent = msToTime(jornadaMetaMs);
         pausaTotalDisplay.textContent = msToTime(pausaTotalMs);
 
-        if (!entradaRegistro) {
+        // Lê os dados já processados pela página principal
+        const entradaSalva = localStorage.getItem('resumo_entrada');
+        const saidaSalva = localStorage.getItem('resumo_saidaSugerida');
+
+        if (entradaSalva && saidaSalva) {
+            erroResumo.style.display = 'none';
+            entradaRegistrada.textContent = entradaSalva;
+            saidaSugeria.textContent = saidaSalva;
+        } else {
             entradaRegistrada.textContent = '--:--';
             saidaSugeria.textContent = '--:--';
-            // Exibe erro se não houver entrada
-            exibirErro('Ainda não há um registro de Entrada para calcular a Saída Sugerida.');
-            return;
+            erroResumo.textContent = 'Vá para a página principal para registrar sua entrada.';
+            erroResumo.style.display = 'block';
         }
-        
-        // Esconde erro se houver entrada
-        erroResumo.style.display = 'none';
-
-        const entradaTimestamp = entradaRegistro.timestamp;
-        
-        // Formata a Hora de Entrada
-        const entradaDate = new Date(entradaTimestamp);
-        const entradaHoraFormatada = `${entradaDate.getHours().toString().padStart(2, '0')}:${entradaDate.getMinutes().toString().padStart(2, '0')}`;
-        entradaRegistrada.textContent = entradaHoraFormatada;
-
-        // Cálculo da Saída Sugerida
-        const saidaSugeridaMs = entradaTimestamp + jornadaMetaMs + pausaTotalMs;
-        const saidaSugeridaDate = new Date(saidaSugeridaMs);
-
-        const sh = saidaSugeridaDate.getHours().toString().padStart(2, '0');
-        const sm = saidaSugeridaDate.getMinutes().toString().padStart(2, '0');
-
-        saidaSugeria.textContent = `${sh}:${sm}`;
     };
 
-    // A cada 5 segundos, atualiza o resumo para pegar o último ponto sem recarregar a página.
-    carregarResumo();
-    setInterval(carregarResumo, 5000); 
+    // A cada 1 segundo, atualiza o resumo lendo do localStorage
+    carregarResumo(); // Chamada inicial
+    setInterval(carregarResumo, 1000); 
 });
