@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Relatório Semanal - Veritime</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style> body { font-family: 'Inter', sans-serif; } </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-300">
+    <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl shadow-lg w-full max-w-2xl mx-auto my-6 relative transition-colors duration-300">
+        <a href="index.html" class="absolute top-4 left-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-bold">
+            <i class="fas fa-arrow-left mr-1"></i> Voltar
+        </a>
+        <header class="mb-8 mt-4">
+            <h1 class="text-3xl font-extrabold text-indigo-600 text-center uppercase tracking-widest">
+                <i class="fas fa-calendar-week text-2xl mr-2"></i> RELATÓRIO SEMANAL
+            </h1>
+        </header>
+        <div id="relatorioContainer" class="space-y-4">
+            <!-- O conteúdo será gerado pelo JavaScript -->
+        </div>
+    </div>
+    <script src="script.js" defer></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Este script é específico para a página de relatório.
+            // Ele lê os dados que o script.js salvou e monta a visualização.
+
+            const relatorioContainer = document.getElementById('relatorioContainer');
+            const dadosSemanais = JSON.parse(localStorage.getItem('relatorioSemanal') || '{}');
+
+            if (Object.keys(dadosSemanais).length === 0) {
+                relatorioContainer.innerHTML = `<p class="text-center text-slate-500 dark:text-slate-400">Não há dados de dias anteriores para exibir.</p>`;
+                return;
+            }
+
+            // Ordena as datas da mais recente para a mais antiga
+            const datasOrdenadas = Object.keys(dadosSemanais).sort((a, b) => new Date(b) - new Date(a));
+
+            datasOrdenadas.forEach(data => {
+                const diaInfo = dadosSemanais[data];
+                const diaFormatado = new Date(data + 'T00:00:00').toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' });
+
+                const cardDia = `
+                    <div class="p-4 border rounded-lg bg-slate-50 dark:bg-slate-700/50 dark:border-slate-600">
+                        <h3 class="font-bold text-lg text-indigo-600 dark:text-indigo-400">${diaFormatado}</h3>
+                        <div class="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-sm text-slate-600 dark:text-slate-300">
+                            <p>Entrada:</p><p class="font-semibold text-right">${diaInfo.entrada || '--:--'}</p>
+                            <p>Saída:</p><p class="font-semibold text-right">${diaInfo.saida || '--:--'}</p>
+                            <p>Tempo Trabalhado:</p><p class="font-bold text-right text-emerald-600 dark:text-emerald-400">${diaInfo.tempoTrabalhado || '00:00:00'}</p>
+                        </div>
+                    </div>
+                `;
+                relatorioContainer.innerHTML += cardDia;
+            });
+        });
+    </script>
+</body>
+</html>

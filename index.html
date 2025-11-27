@@ -72,8 +72,14 @@
                     <a href="ajuda.html" class="block px-4 py-2 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">
                         <i class="fas fa-info-circle mr-2"></i> Ajuda
                     </a>
+                    <a href="#" id="btnRelatorioSemanal" class="block px-4 py-2 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">
+                        <i class="fas fa-calendar-week mr-2"></i> Relatório Semanal
+                    </a>
                     <a href="#" id="btnExportarCSV" class="block px-4 py-2 text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-600">
                         <i class="fas fa-file-csv mr-2"></i> Exportar CSV
+                    </a>
+                    <a href="#" id="btnLimpar" class="block px-4 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/50">
+                        <i class="fas fa-trash mr-2"></i> Limpar Dados
                     </a>
 
                     <div class="border-t border-gray-200 my-1"></div>
@@ -92,23 +98,29 @@
             00:00:00
         </div>
 
-        <!-- SEÇÃO DE RESUMO ADICIONADA -->
-        <div id="resumo" class="text-center text-lg font-semibold text-slate-700 dark:text-slate-300 -mt-4 mb-6 p-2 bg-slate-100 dark:bg-slate-700 rounded-lg">
-            Aguardando Entrada...
+        <!-- NOVO DASHBOARD DE STATUS -->
+        <div id="dashboardStatus" class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 mb-6">
+            <div id="resumo" class="text-center text-lg font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                Aguardando Entrada...
+            </div>
+            <div class="w-full h-6 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden relative">
+                <div id="progresso-barra" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
+                <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-800 dark:text-slate-100" id="progressoTexto">0%</span>
+            </div>
         </div>
 
-        <div class="flex flex-wrap justify-between gap-2 my-6">
+        <div class="flex flex-wrap justify-between gap-2 mb-6">
             <button id="btnEntrada" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                Entrada (Início)
+                <i class="fas fa-play mr-2"></i> Entrada
             </button>
             <button id="btnSaidaAlmoco" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                Saída Almoço
+                <i class="fas fa-utensils mr-2"></i> Saída Almoço
             </button>
             <button id="btnVoltaAlmoco" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                Volta Almoço
+                <i class="fas fa-coffee mr-2"></i> Volta Almoço
             </button>
             <button id="btnSaida" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                Saída (Fim)
+                <i class="fas fa-stop mr-2"></i> Saída
             </button>
         </div>
         
@@ -133,19 +145,8 @@
             </div>
         </div>
 
-        <div id="progressoJornada" class="mt-8 p-5 border border-gray-300 rounded-lg bg-gray-50 text-center" style="display: none;">
-            <h3 class="text-lg font-semibold text-indigo-700 mb-3">Progresso da Jornada</h3>
-            <div class="w-full h-8 bg-gray-300 rounded-full overflow-hidden mb-2 relative">
-                <div id="progresso-barra" class="h-full bg-green-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
-                <span class="absolute inset-0 flex items-center justify-center text-sm font-bold text-gray-800" id="progressoTexto">0%</span>
-            </div>
-            <p id="progressoTempo" class="text-gray-700 font-medium">Tempo trabalhado: 00:00:00</p>
-        </div>
-        
-        <div class="mt-8 p-5 border border-red-300 rounded-lg bg-red-50/50 shadow-inner">
-            <h3 class="text-xl font-bold text-red-700 mb-4 text-center">Avisos e Controles</h3>
-            
-            <div class="flex flex-col items-center p-4 bg-white rounded-lg border border-gray-200 shadow-sm mb-4">
+        <div class="mt-8 p-5 border border-amber-300 dark:border-amber-600 rounded-lg bg-amber-50/50 dark:bg-amber-900/20 shadow-inner">
+            <div class="flex flex-col items-center p-4 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-700 shadow-sm">
                  <div class="flex items-center space-x-3 w-full justify-center mb-3">
                     <span class="font-bold text-slate-700 text-lg">Alarme Volta do Almoço:</span>
                     <label class="switch">
@@ -164,12 +165,8 @@
                 </div>
                 <p id="statusAlarmePausa" class="text-sm text-slate-500 mt-2 italic">Desativado</p>
             </div>
-
-            <button id="btnLimpar" class="w-full bg-slate-700 hover:bg-slate-800 text-white font-bold py-3 px-4 rounded-lg shadow-lg mt-4 transition-colors">
-                <i class="fas fa-trash mr-2"></i> Limpar TODOS os Dados
-            </button>
         </div>
-        <footer class="mt-8 p-4 text-sm text-slate-500 text-center bg-slate-100 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
+        <footer class="mt-8 p-4 text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-100 dark:bg-slate-800 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
             <p>&copy; 2025 Veritime | Criado por **Renato Paiva, Dev**</p>
         </footer>
     </div>

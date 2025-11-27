@@ -5,69 +5,76 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ajuda e Suporte - Veritime</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        // Força o Tailwind a usar a estratégia de 'class' para o modo escuro.
+        tailwind.config = {
+            darkMode: 'class'
+        }
+    </script>
     <link rel="stylesheet" href="style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-        body { font-family: 'Montserrat', sans-serif; }
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-100 flex flex-col justify-center items-center p-4 min-h-screen">
+<body class="bg-slate-100 dark:bg-slate-900 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-300">
 
-    <div class="bg-white p-6 md:p-8 rounded-xl shadow-lg w-full max-w-lg mx-auto my-6 relative">
+    <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl shadow-lg w-full max-w-lg mx-auto my-6 relative transition-colors duration-300">
         
-        <a href="index.html" class="absolute top-4 left-4 text-blue-600 hover:text-blue-800 font-bold">
+        <a href="index.html" class="absolute top-4 left-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-bold">
             <i class="fas fa-arrow-left mr-1"></i> Voltar
         </a>
 
         <header class="mb-8 mt-4">
-            <h1 class="text-3xl font-extrabold text-blue-600 text-center uppercase tracking-widest">
+            <h1 class="text-3xl font-extrabold text-indigo-600 text-center uppercase tracking-widest">
                 <i class="fas fa-info-circle text-2xl mr-2"></i> Ajuda e Suporte
             </h1>
         </header>
         
-        <div class="p-5 border-2 border-gray-300 rounded-lg bg-gray-50 mb-6">
-            <h2 class="text-xl font-bold text-gray-800 mb-3 border-b-2 pb-2">Instruções Rápidas</h2>
+        <div class="p-5 border-2 border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 mb-6">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-3 border-b-2 dark:border-slate-600 pb-2">Instruções Rápidas</h2>
             
-            <ul class="list-disc ml-5 space-y-3 text-gray-700">
+            <ul class="list-disc ml-5 space-y-4 text-slate-700 dark:text-slate-300">
                 <li>
-                    **Configurações:** Acesse pelo Menu Hambúrguer para definir sua Jornada Meta e o Tempo de Pausa.
+                    <strong class="text-slate-800 dark:text-slate-100">Registro de Ponto:</strong> Use os botões com ícones na tela principal. O sistema destaca o próximo botão válido com uma animação e desabilita os outros para garantir a ordem correta dos registros.
                 </li>
                 <li>
-                    **Registro de Ponto:** Use os quatro botões na tela principal (`Entrada`, `Saída Almoço`, etc.) na ordem correta. O sistema desabilita botões inválidos.
+                    <strong class="text-slate-800 dark:text-slate-100">Dashboard de Status:</strong> O painel logo abaixo do relógio mostra sua Saída Sugerida, o tempo restante/extra e o progresso visual da sua jornada.
                 </li>
                 <li>
-                    **Progresso:** A barra de progresso mostra visualmente o quanto da sua jornada você já completou (excluindo a pausa).
+                    <strong class="text-slate-800 dark:text-slate-100">Visualizar Registros:</strong> Para ver a lista de pontos batidos, clique na barra <span class="font-semibold italic">"Registro do Dia"</span> para expandir e visualizar a tabela.
                 </li>
                 <li>
-                    **Saída Sugerida:** A hora de saída é calculada e exibida na página **Resumo Diário** (acessível pelo menu).
+                    <strong class="text-slate-800 dark:text-slate-100">Alarme de Pausa:</strong> Ative o alarme para receber um lembrete vibratório antes do fim do seu intervalo. Você pode personalizar o tempo do aviso (1, 5, 10 ou 15 minutos).
                 </li>
                 <li>
-                    **Alarme:** O Toggle de Alarme na página principal ativa uma vibração 5 minutos antes do fim do seu intervalo de almoço.
+                    <strong class="text-slate-800 dark:text-slate-100">Menu de Opções:</strong> Acesse o menu no canto superior direito para encontrar opções avançadas como <span class="font-semibold">Modo Escuro</span>, <span class="font-semibold">Exportar CSV</span> e <span class="font-semibold text-red-600 dark:text-red-400">Limpar Dados</span> do dia.
                 </li>
             </ul>
         </div>
         
-        <div class="p-5 border-2 border-blue-500 rounded-lg bg-blue-50">
-            <h2 class="text-xl font-bold text-blue-700 mb-3 border-b-2 border-blue-300 pb-2">Fale Conosco</h2>
+        <div class="p-5 border-2 border-indigo-500 rounded-lg bg-indigo-50 dark:bg-indigo-900/30">
+            <h2 class="text-xl font-bold text-indigo-700 dark:text-indigo-300 mb-3 border-b-2 border-indigo-300 dark:border-indigo-600 pb-2">Fale Conosco</h2>
             
-            <p class="mb-3 text-gray-700">Se você encontrar algum bug ou precisar de suporte, entre em contato:</p>
+            <p class="mb-3 text-slate-700 dark:text-slate-300">Se você encontrar algum bug ou precisar de suporte, entre em contato:</p>
             
-            <p class="font-semibold text-gray-800 mb-1">
+            <p class="font-semibold text-slate-800 dark:text-slate-200 mb-1">
                 <i class="fas fa-user-tie mr-2"></i> Desenvolvedor: **Renato Paiva, Dev**
             </p>
-            <p class="text-sm text-gray-600">
+            <p class="text-sm text-slate-600 dark:text-slate-400">
                 <i class="fas fa-envelope mr-2"></i> Email: **paivarenato08@gmail.com**
             </p>
         </div>
 
         
-        <footer class="mt-8 p-4 text-sm text-gray-500 text-center bg-gray-100 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
+        <footer class="mt-8 p-4 text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-100 dark:bg-slate-800 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
             <p>&copy; 2025 Veritime</p>
         </footer>
     </div>
     
+    <script src="script.js" defer></script>
 </body>
 </html>

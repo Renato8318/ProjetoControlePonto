@@ -20,6 +20,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSalvarConfig = document.getElementById('btnSalvarConfig');
     const statusAlarmePausa = document.getElementById('statusAlarmePausa');
     const configAlarmeDiv = document.getElementById('configAlarme');
+    const btnRestaurarPadroes = document.getElementById('btnRestaurarPadroes');
 
     // --- VARIÁVEIS DE CONFIGURAÇÃO DA API ---
     const API_URL = 'https://692797e9b35b4ffc50126d4f.mockapi.io/api/v1/pontos';
@@ -50,11 +51,14 @@ document.addEventListener('DOMContentLoaded', () => {
         return `${sinal}${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
     };
 
-    const calcularTempoTrabalhado = (registros) => {
+    const calcularTempoTrabalhado = (registros, paraDiaAtual = false) => {
         let tempoTotalMs = 0;
         let inicioBloco = null;
 
-        registros.forEach(registro => {
+        // Ordena para garantir a sequência correta
+        const registrosOrdenados = [...registros].sort((a, b) => a.timestamp - b.timestamp);
+
+        registrosOrdenados.forEach(registro => {
             if (registro.tipo === 'Entrada' || registro.tipo === 'Volta Almoço') {
                 inicioBloco = registro.timestamp;
             } else if ((registro.tipo === 'Saída Almoço' || registro.tipo === 'Saída') && inicioBloco) {
@@ -62,8 +66,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 inicioBloco = null;
             }
         });
-
-        if (inicioBloco) {
+        // Se for para o dia atual e o último ponto for uma entrada, calcula até o momento presente.
+        if (paraDiaAtual && inicioBloco) {
             tempoTotalMs += Date.now() - inicioBloco;
         }
         return tempoTotalMs;
@@ -110,6 +114,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Atualiza a UI localmente IMEDIATAMENTE para feedback rápido
         registros.push(novoRegistro);
         localStorage.setItem('registrosVeritime', JSON.stringify(registros));
+        // Salva o último registro para a página de resumo
+        localStorage.setItem('resumo_ultimoRegistro', `${novoRegistro.tipo} às ${novoRegistro.horario.slice(0, 5)}`);
+
         atualizarUICompleta();
         exibirMensagem(`Ponto de ${novoRegistro.tipo} registrado: ${novoRegistro.horario.slice(0, 5)}`, 'sucesso');
 
@@ -193,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const updateProgresso = () => {
         if (!progressoBarra || !progressoTexto) return;
-        const tempoTrabalhadoMs = calcularTempoTrabalhado(registros);
+        const tempoTrabalhadoMs = calcularTempoTrabalhado(registros, true); // true para dia atual
         const progressoPercent = jornadaMetaMs > 0 ? Math.min(100, (tempoTrabalhadoMs / jornadaMetaMs) * 100) : 0;
 
         progressoBarra.style.width = `${progressoPercent.toFixed(2)}%`;
@@ -202,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const atualizarResumo = () => {
         if (!displayResumo) return;
-        const tempoTrabalhadoMs = calcularTempoTrabalhado(registros);
+        const tempoTrabalhadoMs = calcularTempoTrabalhado(registros, true); // true para dia atual
         const entradaRegistro = registros.find(r => r.tipo === 'Entrada');
 
         if (entradaRegistro) {
@@ -224,6 +231,9 @@ document.addEventListener('DOMContentLoaded', () => {
             const entradaDate = new Date(entradaRegistro.timestamp);
             localStorage.setItem('resumo_entrada', entradaDate.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
             localStorage.setItem('resumo_saidaSugerida', saidaFormatada);
+
+            // Salva o tempo trabalhado para a página de resumo
+            localStorage.setItem('resumo_tempoTrabalhado', tempoTrabalhadoMs);
         } else {
             displayResumo.textContent = 'Aguardando Entrada...';
             localStorage.removeItem('resumo_entrada');
@@ -351,6 +361,60 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // Lógica para Relatório Semanal
+        const btnRelatorioSemanal = document.getElementById('btnRelatorioSemanal');
+        if (btnRelatorioSemanal) {
+            btnRelatorioSemanal.addEventListener('click', async (e) => {
+                e.preventDefault();
+                exibirMensagem('Gerando relatório semanal...', 'info');
+
+                try {
+                    // Busca todos os registros (sem filtro de data)
+                    const response = await fetch(`${API_URL}?sortBy=timestamp&order=desc`);
+                    let todosRegistros = [];
+
+                    // CORREÇÃO: Trata o erro 404 (Not Found) como uma lista vazia, que é um cenário válido.
+                    if (response.ok) {
+                        todosRegistros = await response.json();
+                    } else if (response.status !== 404) {
+                        // Se o erro for diferente de 404 (ex: 500), aí sim é uma falha.
+                        throw new Error('Falha ao buscar histórico da API.');
+                    }
+                    // Se for 404, 'todosRegistros' permanece como um array vazio [], e o código continua normalmente.
+                    
+                    // Agrupa os registros por dia
+                    const dadosAgrupados = todosRegistros.reduce((acc, registro) => {
+                        // CORREÇÃO: Garante que a data seja extraída mesmo se o campo 'data_dia' não existir.
+                        // Isso torna o relatório compatível com registros antigos.
+                        const dataDia = registro.data_dia || new Date(registro.timestamp).toISOString().slice(0, 10);
+
+                        if (!acc[dataDia]) {
+                            acc[dataDia] = [];
+                        }
+                        acc[dataDia].push(registro);
+                        return acc;
+                    }, {});
+
+                    // Processa cada dia para extrair as informações
+                    const relatorioFinal = {};
+                    for (const data in dadosAgrupados) {
+                        const registrosDoDia = dadosAgrupados[data];
+                        relatorioFinal[data] = {
+                            entrada: registrosDoDia.find(r => r.tipo === 'Entrada')?.horario.slice(0, 5) || null,
+                            saida: registrosDoDia.find(r => r.tipo === 'Saída')?.horario.slice(0, 5) || null,
+                            tempoTrabalhado: msToTime(calcularTempoTrabalhado(registrosDoDia, false)).slice(0, 8) // false para dias passados
+                        };
+                    }
+
+                    localStorage.setItem('relatorioSemanal', JSON.stringify(relatorioFinal));
+                    window.location.href = 'relatorio.html';
+
+                } catch (error) {
+                    exibirMensagem('Erro ao gerar relatório. Verifique a conexão.', 'erro');
+                }
+            });
+        }
+
         // Lógica para o Modo Escuro
         const toggleDarkMode = document.getElementById('toggleDarkMode');
         if (toggleDarkMode) {
@@ -381,14 +445,56 @@ document.addEventListener('DOMContentLoaded', () => {
                 const horaEntrada = document.getElementById('horaEntrada').value;
                 const horaSaidaPrevista = document.getElementById('horaSaidaPrevista').value;
 
-                localStorage.setItem('jornadaHoras', jornadaHoras);
-                localStorage.setItem('jornadaMinutos', jornadaMinutos);
-                localStorage.setItem('pausaMinutos', pausaMinutos);
-                localStorage.setItem('horaEntrada', horaEntrada);
-                localStorage.setItem('horaSaidaPrevista', horaSaidaPrevista);
+                localStorage.setItem('jornadaHoras', jornadaHoras || '8');
+                localStorage.setItem('jornadaMinutos', jornadaMinutos || '0');
+                localStorage.setItem('pausaMinutos', pausaMinutos || '60');
+                localStorage.setItem('horaEntrada', horaEntrada || '09:00');
+                // Não salvamos a saída prevista, pois ela é sempre calculada
                 exibirMensagem('Configurações salvas com sucesso!', 'sucesso');
             });
+
+            // Lógica para o cálculo automático da saída prevista
+            const inputsConfig = ['jornadaHoras', 'jornadaMinutos', 'pausaMinutos', 'horaEntrada'];
+            inputsConfig.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) {
+                    input.addEventListener('input', calcularSaidaPrevista);
+                }
+            });
+
+            // Lógica para restaurar padrões
+            if (btnRestaurarPadroes) {
+                btnRestaurarPadroes.addEventListener('click', () => {
+                    if (confirm('Tem certeza que deseja restaurar as configurações padrão? (Jornada 8h, Pausa 60min)')) {
+                        document.getElementById('jornadaHoras').value = '8';
+                        document.getElementById('jornadaMinutos').value = '0';
+                        document.getElementById('pausaMinutos').value = '60';
+                        document.getElementById('horaEntrada').value = '09:00';
+                        calcularSaidaPrevista(); // Recalcula a saída com os valores padrão
+                        exibirMensagem('Configurações restauradas para o padrão.', 'info');
+                    }
+                });
+            }
         }
+    };
+
+    const calcularSaidaPrevista = () => {
+        const jornadaHoras = parseInt(document.getElementById('jornadaHoras').value) || 0;
+        const jornadaMinutos = parseInt(document.getElementById('jornadaMinutos').value) || 0;
+        const pausaMinutos = parseInt(document.getElementById('pausaMinutos').value) || 0;
+        const horaEntrada = document.getElementById('horaEntrada').value; // "HH:MM"
+
+        if (!horaEntrada) return;
+
+        const [entradaH, entradaM] = horaEntrada.split(':').map(Number);
+        const totalMinutosJornada = (jornadaHoras * 60) + jornadaMinutos + pausaMinutos;
+
+        const dataEntrada = new Date();
+        dataEntrada.setHours(entradaH, entradaM, 0, 0);
+        const dataSaida = new Date(dataEntrada.getTime() + totalMinutosJornada * 60 * 1000);
+
+        const saidaFormatada = `${String(dataSaida.getHours()).padStart(2, '0')}:${String(dataSaida.getMinutes()).padStart(2, '0')}`;
+        document.getElementById('horaSaidaPrevista').value = saidaFormatada;
     };
 
     // --- FUNÇÃO DE CARREGAMENTO INICIAL ---
@@ -424,7 +530,8 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('jornadaMinutos').value = localStorage.getItem('jornadaMinutos') || '0';
             document.getElementById('pausaMinutos').value = localStorage.getItem('pausaMinutos') || '60';
             document.getElementById('horaEntrada').value = localStorage.getItem('horaEntrada') || '09:00';
-            document.getElementById('horaSaidaPrevista').value = localStorage.getItem('horaSaidaPrevista') || '18:00';
+            // Calcula a saída prevista com os dados carregados
+            calcularSaidaPrevista();
         }
 
         // 3. Atualiza a UI com os dados locais
