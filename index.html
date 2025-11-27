@@ -114,10 +114,10 @@
                 <i class="fas fa-play mr-2"></i> Entrada
             </button>
             <button id="btnSaidaAlmoco" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                <i class="fas fa-utensils mr-2"></i> Saída Almoço
+                <i class="fas fa-mug-hot mr-2"></i> Pausa
             </button>
             <button id="btnVoltaAlmoco" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                <i class="fas fa-coffee mr-2"></i> Volta Almoço
+                <i class="fas fa-coffee mr-2"></i> Volta
             </button>
             <button id="btnSaida" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
                 <i class="fas fa-stop mr-2"></i> Saída
@@ -136,8 +136,10 @@
                 <table id="tabelaRegistros" class="w-full border-collapse">
                     <thead class="bg-indigo-600 text-white">
                         <tr>
-                            <th class="p-3 text-left">Tipo</th>
-                            <th class="p-3 text-left">Horário</th>
+                            <th class="p-3 text-left w-1/4">Jornada</th>
+                            <th class="p-3 text-left w-1/4">Horário</th>
+                            <th class="p-3 text-left w-1/4 border-l border-indigo-400">Pausas</th>
+                            <th class="p-3 text-left w-1/4">Horário</th>
                         </tr>
                     </thead>
                     <tbody id="lista-registros"></tbody>

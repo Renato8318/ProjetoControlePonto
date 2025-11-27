@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const registrosOrdenados = [...registros].sort((a, b) => a.timestamp - b.timestamp);
 
         registrosOrdenados.forEach(registro => {
-            if (registro.tipo === 'Entrada' || registro.tipo === 'Volta Almoço') {
+            if (['Entrada', 'Volta Almoço', 'Volta Pausa'].includes(registro.tipo)) {
                 inicioBloco = registro.timestamp;
             } else if ((registro.tipo === 'Saída Almoço' || registro.tipo === 'Saída') && inicioBloco) {
                 tempoTotalMs += registro.timestamp - inicioBloco;
@@ -139,13 +139,33 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --- FUNÇÃO PRINCIPAL DE REGISTRO DE PONTO ---
-    const registrarPonto = (tipo) => {
+    const registrarPonto = (acao) => {
+        const ultimoTipo = registros.length > 0 ? registros[registros.length - 1].tipo : null;
+        let tipoDoPonto = '';
+
+        // Lógica para determinar o tipo de ponto com base na ação e no estado atual
+        if (acao === 'Entrada') {
+            tipoDoPonto = 'Entrada';
+        } else if (acao === 'Saida') {
+            tipoDoPonto = 'Saída';
+        } else if (acao === 'Pausa') {
+            if (ultimoTipo === 'Entrada' || ultimoTipo === 'Volta Almoço') {
+                tipoDoPonto = 'Saída Pausa';
+            } else if (ultimoTipo === 'Volta Pausa') {
+                tipoDoPonto = 'Saída Almoço';
+            }
+        } else if (acao === 'Volta') {
+            if (ultimoTipo === 'Saída Pausa') {
+                tipoDoPonto = 'Volta Pausa';
+            } else if (ultimoTipo === 'Saída Almoço') {
+                tipoDoPonto = 'Volta Almoço';
+            }
+        }
+
         const timestamp = Date.now();
         const date = new Date(timestamp);
         const horario = date.toLocaleTimeString('pt-BR');
-        const novoRegistro = { tipo, horario, timestamp };
-
-        // Chama a função que salva localmente e depois na API
+        const novoRegistro = { tipo: tipoDoPonto, horario, timestamp };
         registrarPontoNaAPI(novoRegistro);
     };
 
@@ -169,33 +189,55 @@ document.addEventListener('DOMContentLoaded', () => {
         btnEntrada.disabled = ultimoTipo !== null;
         if (!btnEntrada.disabled) btnEntrada.classList.add('tremor');
 
-        btnSaidaAlmoco.disabled = !(ultimoTipo === 'Entrada' || ultimoTipo === 'Volta Almoço');
+        // Lógica para o botão de Saída (Pausa/Almoço)
+        const podeSairParaPausa = ['Entrada', 'Volta Pausa', 'Volta Almoço'].includes(ultimoTipo);
+        btnSaidaAlmoco.disabled = !podeSairParaPausa;
         if (!btnSaidaAlmoco.disabled) btnSaidaAlmoco.classList.add('tremor');
 
-        btnVoltaAlmoco.disabled = ultimoTipo !== 'Saída Almoço';
+        // Lógica para o botão de Volta (Pausa/Almoço)
+        const podeVoltarDaPausa = ['Saída Pausa', 'Saída Almoço'].includes(ultimoTipo);
+        btnVoltaAlmoco.disabled = !podeVoltarDaPausa;
         if (!btnVoltaAlmoco.disabled) btnVoltaAlmoco.classList.add('tremor');
 
-        // NOVA REGRA: Só pode registrar a saída final se o último ponto foi a volta do almoço.
-        // Isso força o usuário a completar o ciclo de intervalo.
-        btnSaida.disabled = ultimoTipo !== 'Volta Almoço';
+        // Lógica para o botão de Saída Final
+        // Permite sair após a volta do almoço ou após a última pausa.
+        const registrosDeVoltaPausa = registros.filter(r => r.tipo === 'Volta Pausa').length;
+        const podeSairFinal = (ultimoTipo === 'Volta Almoço' && registrosDeVoltaPausa === 1) || (ultimoTipo === 'Volta Pausa' && registrosDeVoltaPausa === 2);
+        btnSaida.disabled = !podeSairFinal;
+
+        // Atualiza o texto do botão de pausa para refletir a próxima ação
+        btnSaidaAlmoco.innerHTML = (ultimoTipo === 'Volta Pausa') ? '<i class="fas fa-utensils mr-2"></i> Saída' : '<i class="fas fa-mug-hot mr-2"></i> Pausa';
     };
 
     const renderizarRegistros = () => {
         if (!listaRegistros) return;
-        listaRegistros.innerHTML = '';
-        registros.forEach((registro, index) => {
+        listaRegistros.innerHTML = ''; // Limpa a tabela
+
+        const registrosPrincipais = registros.filter(r => !['Saída Pausa', 'Volta Pausa'].includes(r.tipo));
+        const registrosPausa = registros.filter(r => ['Saída Pausa', 'Volta Pausa'].includes(r.tipo));
+
+        const maxRows = Math.max(registrosPrincipais.length, registrosPausa.length);
+
+        for (let i = 0; i < maxRows; i++) {
             const tr = document.createElement('tr');
-            tr.className = 'border-b border-gray-200';
-            if (index === registros.length - 1) {
-                tr.classList.add('ultimo-registro');
-                tr.classList.add('novo-registro-anim'); // Adiciona a classe de animação
-            }
+            tr.className = 'border-b border-slate-200 dark:border-slate-700';
+
+            const regPrincipal = registrosPrincipais[i];
+            const regPausa = registrosPausa[i];
+
+            // Colunas da Jornada Principal
             tr.innerHTML = `
-                <td class="p-3">${registro.tipo}</td>
-                <td class="p-3">${registro.horario.slice(0, 5)}</td>
+                <td class="p-3">${regPrincipal ? regPrincipal.tipo : ''}</td>
+                <td class="p-3 font-semibold">${regPrincipal ? regPrincipal.horario.slice(0, 5) : ''}</td>
+            `;
+
+            // Colunas das Pausas Curtas
+            tr.innerHTML += `
+                <td class="p-3 border-l border-slate-200 dark:border-slate-600">${regPausa ? regPausa.tipo : ''}</td>
+                <td class="p-3 font-semibold">${regPausa ? regPausa.horario.slice(0, 5) : ''}</td>
             `;
             listaRegistros.appendChild(tr);
-        });
+        }
     };
 
     const updateProgresso = () => {
@@ -290,9 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (btnEntrada) {
             btnEntrada.addEventListener('click', () => registrarPonto('Entrada'));
-            btnSaidaAlmoco.addEventListener('click', () => registrarPonto('Saída Almoço'));
-            btnVoltaAlmoco.addEventListener('click', () => registrarPonto('Volta Almoço'));
-            btnSaida.addEventListener('click', () => registrarPonto('Saída'));
+            btnSaidaAlmoco.addEventListener('click', () => registrarPonto('Pausa'));
+            btnVoltaAlmoco.addEventListener('click', () => registrarPonto('Volta'));
+            btnSaida.addEventListener('click', () => registrarPonto('Saida'));
         }
 
         if (btnLimpar) {
