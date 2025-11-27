@@ -17,6 +17,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const progressoTexto = document.getElementById('progresso-texto');
     const toggleAlarmePausa = document.getElementById('toggleAlarmePausa');
     const tempoAlarmePausaSelect = document.getElementById('tempoAlarmePausa');
+    const btnSalvarConfig = document.getElementById('btnSalvarConfig');
+    const statusAlarmePausa = document.getElementById('statusAlarmePausa');
+    const configAlarmeDiv = document.getElementById('configAlarme');
 
     // --- VARIÁVEIS DE CONFIGURAÇÃO DA API ---
     const API_URL = 'https://692797e9b35b4ffc50126d4f.mockapi.io/api/v1/pontos';
@@ -154,7 +157,10 @@ document.addEventListener('DOMContentLoaded', () => {
         btnEntrada.disabled = ultimoTipo !== null;
         btnSaidaAlmoco.disabled = !(ultimoTipo === 'Entrada' || ultimoTipo === 'Volta Almoço');
         btnVoltaAlmoco.disabled = ultimoTipo !== 'Saída Almoço';
-        btnSaida.disabled = !(ultimoTipo === 'Entrada' || ultimoTipo === 'Volta Almoço');
+
+        // NOVA REGRA: Só pode registrar a saída final se o último ponto foi a volta do almoço.
+        // Isso força o usuário a completar o ciclo de intervalo.
+        btnSaida.disabled = ultimoTipo !== 'Volta Almoço';
     };
 
     const renderizarRegistros = () => {
@@ -239,6 +245,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const updateAlarmeUI = () => {
+        if (!statusAlarmePausa || !configAlarmeDiv) return;
+
+        if (alarmePausaAtivo) {
+            statusAlarmePausa.textContent = 'Ativado';
+            statusAlarmePausa.className = 'text-sm text-green-600 mt-2 italic font-bold';
+            configAlarmeDiv.style.display = 'block';
+        } else {
+            statusAlarmePausa.textContent = 'Desativado';
+            statusAlarmePausa.className = 'text-sm text-gray-500 mt-2 italic';
+            configAlarmeDiv.style.display = 'none';
+        }
+    };
+
     // --- LISTENERS DE EVENTOS ---
     const configurarEventListeners = () => {
         if (btnMenu) {
@@ -269,11 +289,30 @@ document.addEventListener('DOMContentLoaded', () => {
             toggleAlarmePausa.addEventListener('change', () => {
                 alarmePausaAtivo = toggleAlarmePausa.checked;
                 localStorage.setItem('alarmePausaAtivo', alarmePausaAtivo);
+                updateAlarmeUI(); // Atualiza o texto e a visibilidade
             });
 
             tempoAlarmePausaSelect.addEventListener('change', () => {
                 localStorage.setItem('tempoAlarmePausa', tempoAlarmePausaSelect.value);
                 verificarAlarmePausa(); // Recalcula o alarme com o novo tempo
+            });
+        }
+
+        // Lógica para a página de configurações
+        if (btnSalvarConfig) {
+            btnSalvarConfig.addEventListener('click', () => {
+                const jornadaHoras = document.getElementById('jornadaHoras').value;
+                const jornadaMinutos = document.getElementById('jornadaMinutos').value;
+                const pausaMinutos = document.getElementById('pausaMinutos').value;
+                const horaEntrada = document.getElementById('horaEntrada').value;
+                const horaSaidaPrevista = document.getElementById('horaSaidaPrevista').value;
+
+                localStorage.setItem('jornadaHoras', jornadaHoras);
+                localStorage.setItem('jornadaMinutos', jornadaMinutos);
+                localStorage.setItem('pausaMinutos', pausaMinutos);
+                localStorage.setItem('horaEntrada', horaEntrada);
+                localStorage.setItem('horaSaidaPrevista', horaSaidaPrevista);
+                exibirMensagem('Configurações salvas com sucesso!', 'sucesso');
             });
         }
     };
@@ -300,6 +339,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const tempoSalvo = localStorage.getItem('tempoAlarmePausa') || '5';
             tempoAlarmePausaSelect.value = tempoSalvo;
+
+            // Garante que a UI do alarme esteja correta no carregamento
+            updateAlarmeUI();
+        }
+
+        // Carrega os dados nos inputs da página de configurações, se ela estiver ativa
+        if (document.getElementById('jornadaHoras')) {
+            document.getElementById('jornadaHoras').value = localStorage.getItem('jornadaHoras') || '8';
+            document.getElementById('jornadaMinutos').value = localStorage.getItem('jornadaMinutos') || '0';
+            document.getElementById('pausaMinutos').value = localStorage.getItem('pausaMinutos') || '60';
+            document.getElementById('horaEntrada').value = localStorage.getItem('horaEntrada') || '09:00';
+            document.getElementById('horaSaidaPrevista').value = localStorage.getItem('horaSaidaPrevista') || '18:00';
         }
 
         // 3. Atualiza a UI com os dados locais
