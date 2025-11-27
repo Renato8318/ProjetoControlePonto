@@ -539,6 +539,29 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('horaSaidaPrevista').value = saidaFormatada;
     };
 
+    const atualizarSaudacao = () => {
+        const elementoSaudacao = document.getElementById('saudacao');
+        if (!elementoSaudacao) return; // Não faz nada se o elemento não existir na página
+
+        const horaAtual = new Date().getHours();
+        let saudacao = '';
+        let icone = '';
+
+        if (horaAtual >= 5 && horaAtual < 12) {
+            saudacao = 'Bom dia';
+            icone = '<i class="fas fa-sun mr-2 text-yellow-500"></i>';
+        } else if (horaAtual >= 12 && horaAtual < 18) {
+            saudacao = 'Boa tarde';
+            icone = '<i class="fas fa-cloud-sun mr-2 text-orange-400"></i>';
+        } else {
+            saudacao = 'Boa noite';
+            icone = '<i class="fas fa-moon mr-2 text-indigo-400"></i>';
+        }
+
+        // Você pode adicionar o nome do usuário aqui se tiver um sistema de login no futuro
+        elementoSaudacao.innerHTML = `${icone} Bem-vindo! ${saudacao}.`;
+    };
+
     // --- FUNÇÃO DE CARREGAMENTO INICIAL ---
     const carregarDados = () => {
         // CORREÇÃO: A ordem de carregamento foi ajustada.
@@ -586,6 +609,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- INICIALIZAÇÃO ---
     const init = () => {
         configurarEventListeners();
+        atualizarSaudacao(); // Adiciona a chamada para a nova função
         carregarDados();
 
         // Inicia o relógio e a atualização contínua da UI
