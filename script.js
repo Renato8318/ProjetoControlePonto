@@ -227,14 +227,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Colunas da Jornada Principal
             tr.innerHTML = `
-                <td class="p-3">${regPrincipal ? regPrincipal.tipo : ''}</td>
-                <td class="p-3 font-semibold">${regPrincipal ? regPrincipal.horario.slice(0, 5) : ''}</td>
+                <td class="p-3 text-slate-700 dark:text-slate-300">${regPrincipal ? regPrincipal.tipo : ''}</td>
+                <td class="p-3 font-semibold text-slate-800 dark:text-slate-100">${regPrincipal ? regPrincipal.horario.slice(0, 5) : ''}</td>
             `;
 
             // Colunas das Pausas Curtas
             tr.innerHTML += `
-                <td class="p-3 border-l border-slate-200 dark:border-slate-600">${regPausa ? regPausa.tipo : ''}</td>
-                <td class="p-3 font-semibold">${regPausa ? regPausa.horario.slice(0, 5) : ''}</td>
+                <td class="p-3 border-l border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300">${regPausa ? regPausa.tipo : ''}</td>
+                <td class="p-3 font-semibold text-slate-800 dark:text-slate-100">${regPausa ? regPausa.horario.slice(0, 5) : ''}</td>
             `;
             listaRegistros.appendChild(tr);
         }
