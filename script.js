@@ -460,20 +460,25 @@ document.addEventListener('DOMContentLoaded', () => {
         // Lógica para o Modo Escuro
         const toggleDarkMode = document.getElementById('toggleDarkMode');
         if (toggleDarkMode) {
-            // LÓGICA DE INICIALIZAÇÃO SIMPLIFICADA: O padrão é sempre o modo claro.
-            // Apenas ativa o modo escuro se o usuário já o habilitou e salvou no localStorage.
-            if (localStorage.getItem('darkMode') === 'enabled') {
+            // Verifica no carregamento se o modo escuro deve ser ativado
+            // Condições: 1) Salvo no localStorage como 'true' OU 2) Não há nada salvo E o sistema prefere o modo escuro
+            const isDarkMode = localStorage.getItem('darkMode') === 'true' || 
+                               (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+            if (isDarkMode) {
                 document.documentElement.classList.add('dark');
                 toggleDarkMode.checked = true;
             }
 
             toggleDarkMode.addEventListener('change', () => {
                 if (toggleDarkMode.checked) {
+                    // Ativa o modo escuro
                     document.documentElement.classList.add('dark');
-                    localStorage.setItem('darkMode', 'enabled');
+                    localStorage.setItem('darkMode', 'true');
                 } else {
+                    // Desativa o modo escuro
                     document.documentElement.classList.remove('dark');
-                    localStorage.setItem('darkMode', 'disabled');
+                    localStorage.setItem('darkMode', 'false');
                 }
             });
         }
@@ -612,16 +617,17 @@ document.addEventListener('DOMContentLoaded', () => {
         atualizarSaudacao(); // Adiciona a chamada para a nova função
         carregarDados();
 
-        // Inicia o relógio e a atualização contínua da UI
-        setInterval(() => {
-            if (relogio) {
+        // Inicia o relógio e a atualização contínua da UI, APENAS se estiver na página principal
+        if (relogio) {
+            setInterval(() => {
                 relogio.textContent = new Date().toLocaleTimeString('pt-BR');
-            }
-            // Atualiza apenas os componentes que mudam com o tempo
-            atualizarResumo();
-            updateProgresso();
-            verificarAlarmePausa();
-        }, 1000);
+                
+                // Atualiza apenas os componentes que mudam com o tempo
+                atualizarResumo();
+                updateProgresso();
+                verificarAlarmePausa();
+            }, 1000);
+        }
     };
 
     init();
