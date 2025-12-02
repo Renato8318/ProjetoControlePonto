@@ -550,21 +550,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const horaAtual = new Date().getHours();
         let saudacao = '';
+        let saudacaoClasses = '';
         let icone = '';
 
         if (horaAtual >= 5 && horaAtual < 12) {
             saudacao = 'Bom dia';
-            icone = '<i class="fas fa-sun mr-2 text-yellow-500"></i>';
+            saudacaoClasses = 'bg-clip-text text-transparent bg-gradient-to-r from-yellow-500 to-amber-500';
+            icone = '<i class="fas fa-sun fa-sun-slow-spin mr-2 text-yellow-500"></i>';
         } else if (horaAtual >= 12 && horaAtual < 18) {
             saudacao = 'Boa tarde';
-            icone = '<i class="fas fa-cloud-sun mr-2 text-orange-400"></i>';
+            saudacaoClasses = 'bg-clip-text text-transparent bg-gradient-to-r from-amber-500 to-orange-500';
+            icone = '<i class="fas fa-cloud-sun fa-beat-fade mr-2 text-orange-400"></i>';
         } else {
             saudacao = 'Boa noite';
-            icone = '<i class="fas fa-moon mr-2 text-indigo-400"></i>';
+            saudacaoClasses = 'bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400';
+            icone = '<i class="fas fa-moon fa-beat mr-2 text-indigo-300"></i>';
         }
 
-        // Você pode adicionar o nome do usuário aqui se tiver um sistema de login no futuro
-        elementoSaudacao.innerHTML = `${icone} Bem-vindo! ${saudacao}.`;
+        elementoSaudacao.innerHTML = `${icone} Bem-vindo! <span class="font-bold ${saudacaoClasses}">${saudacao}</span>.`;
     };
 
     // --- FUNÇÃO DE CARREGAMENTO INICIAL ---
