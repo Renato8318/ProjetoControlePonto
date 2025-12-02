@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const mensagemFeedback = document.getElementById('statusMensagem');
     const btnMenu = document.getElementById('btnMenu');
     const menuDropdown = document.getElementById('menuDropdown');
+    const menuBackdrop = document.getElementById('menuBackdrop'); // Adicionado o backdrop
 
     // Elementos que podem não existir em todas as páginas
     const progressoBarra = document.getElementById('progresso-barra');
@@ -324,9 +325,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- LISTENERS DE EVENTOS ---
     const configurarEventListeners = () => {
+        // Função para abrir/fechar o menu e o backdrop
+        const toggleMenu = () => {
+            if (menuDropdown) menuDropdown.classList.toggle('hidden');
+            if (menuBackdrop) menuBackdrop.classList.toggle('hidden');
+        };
+
         if (btnMenu) {
-            btnMenu.addEventListener('click', () => {
-                menuDropdown.classList.toggle('hidden');
+            btnMenu.addEventListener('click', toggleMenu);
+        }
+        if (menuBackdrop) {
+            menuBackdrop.addEventListener('click', toggleMenu); // Fecha o menu ao clicar no fundo
+        }
+        // Adicionado: Fecha o menu ao clicar em um item
+        if (menuDropdown) {
+            menuDropdown.addEventListener('click', (e) => {
+                if (e.target.tagName === 'A' || e.target.closest('a')) {
+                    toggleMenu();
+                }
             });
         }
 
