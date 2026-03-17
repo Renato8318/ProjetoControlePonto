@@ -19,6 +19,10 @@
     </script>
     <link rel="stylesheet" href="style.css"> 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Bibliotecas para PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+
     <style>
         body { font-family: 'Inter', sans-serif; }
         /* Estilos específicos para o calendário */
@@ -34,7 +38,7 @@
 </head>
 <body class="bg-slate-100 dark:bg-slate-900 flex flex-col items-center p-4 min-h-screen transition-colors duration-300">
     
-    <div class="w-full max-w-5xl mx-auto my-6">
+    <div id="areaImpressao" class="w-full max-w-5xl mx-auto my-6 bg-slate-100 dark:bg-slate-900 p-2">
         <!-- Cabeçalho e Botão Voltar -->
         <div class="flex justify-between items-center mb-6">
             <a href="index.html" class="bg-white dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 py-2 px-4 rounded-lg shadow font-bold transition-colors">
@@ -43,7 +47,9 @@
             <h1 class="text-2xl md:text-3xl font-extrabold uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
                 <i class="fas fa-calendar-alt mr-2 text-indigo-500"></i> Relatório Mensal
             </h1>
-            <div class="w-[100px]"></div> <!-- Espaçador para centralizar o título -->
+            <button id="btnExportarPDF" class="bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg shadow font-bold transition-colors">
+                <i class="fas fa-file-pdf mr-2"></i> PDF
+            </button>
         </div>
 
         <!-- Controles do Mês -->
@@ -114,6 +120,7 @@
             const calendarGrid = document.getElementById('calendarGrid');
             const btnAnterior = document.getElementById('mesAnterior');
             const btnProximo = document.getElementById('mesProximo');
+            const btnExportarPDF = document.getElementById('btnExportarPDF');
 
             // 1. Carregar Registros
             const carregarRegistros = async () => {
@@ -311,6 +318,40 @@
             btnProximo.addEventListener('click', () => {
                 dataAtual.setMonth(dataAtual.getMonth() + 1);
                 renderizarCalendario();
+            });
+
+            // Lógica de Exportação PDF
+            btnExportarPDF.addEventListener('click', () => {
+                const { jsPDF } = window.jspdf;
+                const elemento = document.getElementById('areaImpressao');
+                
+                // Feedback visual
+                const textoOriginal = btnExportarPDF.innerHTML;
+                btnExportarPDF.innerHTML = '<i class="fas fa-spinner fa-spin mr-2"></i> Gerando...';
+                btnExportarPDF.disabled = true;
+
+                // Esconde botões que não devem sair no PDF temporariamente
+                const botoesControle = [btnAnterior, btnProximo, btnExportarPDF, document.querySelector('a[href="index.html"]')];
+                botoesControle.forEach(b => b.style.opacity = '0');
+
+                html2canvas(elemento, {
+                    scale: 2, // Melhora a qualidade
+                    useCORS: true,
+                    backgroundColor: null // Mantém transparência/fundo do tema
+                }).then(canvas => {
+                    const imgData = canvas.toDataURL('image/png');
+                    const pdf = new jsPDF('p', 'mm', 'a4');
+                    const pdfWidth = pdf.internal.pageSize.getWidth();
+                    const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
+
+                    pdf.addImage(imgData, 'PNG', 0, 10, pdfWidth, pdfHeight);
+                    pdf.save(`Relatorio_Veritime_${tituloMes.textContent.replace(/\s+/g, '_')}.pdf`);
+
+                    // Restaura botões
+                    botoesControle.forEach(b => b.style.opacity = '1');
+                    btnExportarPDF.innerHTML = textoOriginal;
+                    btnExportarPDF.disabled = false;
+                });
             });
 
             // Inicializa
