@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baixar Aplicativo - Veritime</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <script>
+        // Aplica o tema escuro no carregamento da página
+        if (localStorage.getItem('darkMode') === 'true' || (!('darkMode' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <link rel="stylesheet" href="style.css"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Ícone da Aba (Favicon) -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏰</text></svg>">
+
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-100 dark:bg-slate-900 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-300">
+    <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl shadow-lg w-full max-w-2xl mx-auto my-6 relative transition-colors duration-300">
+        <a href="index.html" class="absolute top-4 left-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-bold">
+            <i class="fas fa-arrow-left mr-1"></i> Voltar
+        </a>
+        <header class="mb-8 mt-4">
+            <h1 class="text-3xl font-extrabold text-center uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
+                <i class="fas fa-download text-2xl mr-2 text-indigo-500"></i> Baixar Aplicativo
+            </h1>
+        </header>
+
+        <div class="text-center text-slate-600 dark:text-slate-400 mb-8">
+            <p>O Veritime pode ser instalado no seu dispositivo para um acesso rápido, como um aplicativo nativo!</p>
+            <p class="mt-2 p-2 bg-yellow-100 dark:bg-yellow-900/50 text-yellow-800 dark:text-yellow-300 rounded-lg border border-yellow-300 dark:border-yellow-700">
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                Atenção: Esta funcionalidade ainda está <strong class="font-semibold">em fase de teste</strong>.
+            </p>
+        </div>
+
+        <div class="space-y-6">
+            <!-- Instruções para Desktop -->
+            <div class="p-4 border rounded-lg bg-slate-50 dark:bg-slate-700/50 dark:border-slate-600">
+                <h2 class="font-bold text-lg text-indigo-600 dark:text-indigo-400 mb-2"><i class="fas fa-desktop mr-2"></i>Desktop (Chrome/Edge)</h2>
+                <ol class="list-decimal list-inside space-y-1 text-slate-700 dark:text-slate-300">
+                    <li>Abra o Veritime no navegador Google Chrome ou Microsoft Edge.</li>
+                    <li>Na barra de endereço, no canto direito, procure por um ícone de <strong class="font-semibold">instalação</strong> (geralmente um monitor com uma seta para baixo).</li>
+                    <li>Clique no ícone e confirme a instalação.</li>
+                    <li>O Veritime aparecerá como um aplicativo na sua área de trabalho.</li>
+                </ol>
+            </div>
+
+            <!-- Instruções para Android -->
+            <div class="p-4 border rounded-lg bg-slate-50 dark:bg-slate-700/50 dark:border-slate-600">
+                <h2 class="font-bold text-lg text-emerald-600 dark:text-emerald-400 mb-2"><i class="fab fa-android mr-2"></i>Android (Chrome)</h2>
+                <ol class="list-decimal list-inside space-y-1 text-slate-700 dark:text-slate-300">
+                    <li>Abra o Veritime no navegador Google Chrome.</li>
+                    <li>Toque no menu de três pontos (<i class="fas fa-ellipsis-v"></i>) no canto superior direito.</li>
+                    <li>Selecione a opção <strong class="font-semibold">"Instalar aplicativo"</strong> ou <strong class="font-semibold">"Adicionar à tela inicial"</strong>.</li>
+                    <li>Confirme a ação e o ícone do Veritime será adicionado à sua tela inicial.</li>
+                </ol>
+            </div>
+
+            <!-- Instruções para iOS -->
+            <div class="p-4 border rounded-lg bg-slate-50 dark:bg-slate-700/50 dark:border-slate-600">
+                <h2 class="font-bold text-lg text-slate-600 dark:text-slate-300 mb-2"><i class="fab fa-apple mr-2"></i>iOS (Safari)</h2>
+                <ol class="list-decimal list-inside space-y-1 text-slate-700 dark:text-slate-300">
+                    <li>Abra o Veritime no navegador Safari.</li>
+                    <li>Toque no ícone de <strong class="font-semibold">Compartilhamento</strong> (um quadrado com uma seta para cima) na barra inferior.</li>
+                    <li>Role para baixo e selecione a opção <strong class="font-semibold">"Adicionar à Tela de Início"</strong>.</li>
+                    <li>Confirme o nome e toque em "Adicionar". O ícone aparecerá na sua tela de início.</li>
+                </ol>
+            </div>
+        </div>
+
+        <footer class="mt-8 p-4 text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-100 dark:bg-slate-800 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
+            <p>&copy; 2025 Veritime</p>
+        </footer>
+    </div>
+</body>
+</html>
