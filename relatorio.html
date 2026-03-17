@@ -60,7 +60,7 @@
         </div>
 
         <!-- Resumo do Mês -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-indigo-50 dark:bg-slate-800 p-4 rounded-lg border border-indigo-100 dark:border-slate-700 text-center shadow-sm">
                 <p class="text-sm text-slate-500 dark:text-slate-400">Total Trabalhado no Mês</p>
                 <p id="totalTrabalhadoMes" class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">--:--</p>
@@ -72,6 +72,10 @@
             <div class="bg-amber-50 dark:bg-slate-800 p-4 rounded-lg border border-amber-100 dark:border-slate-700 text-center shadow-sm">
                 <p class="text-sm text-slate-500 dark:text-slate-400">Média Diária</p>
                 <p id="mediaDiariaMes" class="text-2xl font-bold text-amber-600 dark:text-amber-400">--:--</p>
+            </div>
+            <div class="bg-blue-50 dark:bg-slate-800 p-4 rounded-lg border border-blue-100 dark:border-slate-700 text-center shadow-sm">
+                <p class="text-sm text-slate-500 dark:text-slate-400">Banco de Horas</p>
+                <p id="bancoHorasMes" class="text-2xl font-bold text-blue-600 dark:text-blue-400">--:--</p>
             </div>
         </div>
 
@@ -117,6 +121,11 @@
                 const stored = localStorage.getItem('registrosVeritime');
                 registros = stored ? JSON.parse(stored) : [];
 
+                // OTIMIZAÇÃO: Renderiza imediatamente com dados locais (se houver) para evitar a tela de "Carregando..."
+                if (registros.length > 0) {
+                    renderizarCalendario();
+                }
+
                 // Tenta buscar da API e sobrescrever os registros locais
                 try {
                     const response = await fetch(`${API_URL}?sortBy=timestamp&order=asc`);
@@ -140,12 +149,16 @@
 
             // 2. Funções Auxiliares de Tempo
             const msToTime = (duration) => {
-                if (!duration) return '00:00';
-                let totalSeconds = Math.floor(duration / 1000);
+                if (!duration && duration !== 0) return '00:00';
+                
+                const isNegative = duration < 0;
+                const absDuration = Math.abs(duration);
+                
+                let totalSeconds = Math.floor(absDuration / 1000);
                 let hours = Math.floor(totalSeconds / 3600);
                 let minutes = Math.floor((totalSeconds % 3600) / 60);
                 const pad = (num) => String(num).padStart(2, '0');
-                return `${pad(hours)}:${pad(minutes)}`;
+                return `${isNegative ? '-' : ''}${pad(hours)}:${pad(minutes)}`;
             };
 
             const calcularTempoDia = (registrosDia) => {
@@ -181,6 +194,11 @@
                 const ano = dataAtual.getFullYear();
                 const mes = dataAtual.getMonth();
 
+                // Carrega Configuração de Meta para cálculos
+                const horasMeta = Number(localStorage.getItem('jornadaHoras') || '8');
+                const minutosMeta = Number(localStorage.getItem('jornadaMinutos') || '0');
+                const metaDiariaMs = (horasMeta * 3600 + minutosMeta * 60) * 1000;
+
                 // Atualiza Título
                 const nomeMes = new Intl.DateTimeFormat('pt-BR', { month: 'long', year: 'numeric' }).format(dataAtual);
                 tituloMes.textContent = nomeMes;
@@ -194,6 +212,7 @@
                 // Variáveis para o resumo do mês
                 let totalMesMs = 0;
                 let diasComRegistro = 0;
+                let bancoHorasMs = 0;
 
                 // Células vazias antes do dia 1
                 for (let i = 0; i < primeiroDiaDaSemana; i++) {
@@ -219,8 +238,12 @@
                     const tempoTrabalhadoMs = calcularTempoDia(registrosDoDia);
                     
                     if (tempoTrabalhadoMs > 0) {
+                        // Acumuladores
                         totalMesMs += tempoTrabalhadoMs;
                         diasComRegistro++;
+                        
+                        // Cálculo do Banco de Horas (Trabalhado - Meta)
+                        bancoHorasMs += (tempoTrabalhadoMs - metaDiariaMs);
                     }
 
                     // HTML da Célula
@@ -232,6 +255,10 @@
                         cell.classList.add('ring-2', 'ring-inset', 'ring-indigo-500');
                     }
 
+                    // Cor do texto baseada na meta (Verde se >= meta, Vermelho se < meta)
+                    // Apenas para dias que já passaram ou que já tem registro completo
+                    const corTextoTotal = tempoTrabalhadoMs >= metaDiariaMs ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400';
+
                     let infoHtml = '';
                     if (registrosDoDia.length > 0) {
                         infoHtml = `
@@ -242,7 +269,7 @@
                                 <div class="flex justify-between text-slate-600 dark:text-slate-400">
                                     <span><i class="fas fa-stop text-[10px] mr-1 text-red-500"></i>${saida ? saida.horario.slice(0, 5) : '--:--'}</span>
                                 </div>
-                                <div class="pt-1 mt-1 border-t border-slate-100 dark:border-slate-700 font-bold text-center text-indigo-600 dark:text-indigo-400">
+                                <div class="pt-1 mt-1 border-t border-slate-100 dark:border-slate-700 font-bold text-center ${corTextoTotal}">
                                     ${msToTime(tempoTrabalhadoMs)}
                                 </div>
                             </div>
@@ -265,6 +292,14 @@
                 
                 const mediaMs = diasComRegistro > 0 ? totalMesMs / diasComRegistro : 0;
                 document.getElementById('mediaDiariaMes').textContent = msToTime(mediaMs);
+
+                // Atualiza Banco de Horas
+                const elBanco = document.getElementById('bancoHorasMes');
+                if (elBanco) {
+                    elBanco.textContent = msToTime(bancoHorasMs);
+                    // Muda a cor do banco de horas (Verde positivo, Vermelho negativo)
+                    elBanco.className = `text-2xl font-bold ${bancoHorasMs >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-500 dark:text-red-400'}`;
+                }
             };
 
             // Event Listeners
