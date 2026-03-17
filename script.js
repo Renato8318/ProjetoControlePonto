@@ -422,54 +422,9 @@ document.addEventListener('DOMContentLoaded', () => {
         // Lógica para Relatório Semanal
         const btnRelatorioSemanal = document.getElementById('btnRelatorioSemanal');
         if (btnRelatorioSemanal) {
-            btnRelatorioSemanal.addEventListener('click', async (e) => {
+            btnRelatorioSemanal.addEventListener('click', (e) => {
                 e.preventDefault();
-                exibirMensagem('Gerando relatório semanal...', 'info');
-
-                try {
-                    // Busca todos os registros (sem filtro de data)
-                    const response = await fetch(`${API_URL}?sortBy=timestamp&order=desc`);
-                    let todosRegistros = [];
-
-                    // CORREÇÃO: Trata o erro 404 (Not Found) como uma lista vazia, que é um cenário válido.
-                    if (response.ok) {
-                        todosRegistros = await response.json();
-                    } else if (response.status !== 404) {
-                        // Se o erro for diferente de 404 (ex: 500), aí sim é uma falha.
-                        throw new Error('Falha ao buscar histórico da API.');
-                    }
-                    // Se for 404, 'todosRegistros' permanece como um array vazio [], e o código continua normalmente.
-                    
-                    // Agrupa os registros por dia
-                    const dadosAgrupados = todosRegistros.reduce((acc, registro) => {
-                        // CORREÇÃO: Garante que a data seja extraída mesmo se o campo 'data_dia' não existir.
-                        // Isso torna o relatório compatível com registros antigos.
-                        const dataDia = registro.data_dia || new Date(registro.timestamp).toISOString().slice(0, 10);
-
-                        if (!acc[dataDia]) {
-                            acc[dataDia] = [];
-                        }
-                        acc[dataDia].push(registro);
-                        return acc;
-                    }, {});
-
-                    // Processa cada dia para extrair as informações
-                    const relatorioFinal = {};
-                    for (const data in dadosAgrupados) {
-                        const registrosDoDia = dadosAgrupados[data];
-                        relatorioFinal[data] = {
-                            entrada: registrosDoDia.find(r => r.tipo === 'Entrada')?.horario.slice(0, 5) || null,
-                            saida: registrosDoDia.find(r => r.tipo === 'Saída')?.horario.slice(0, 5) || null,
-                            tempoTrabalhado: msToTime(calcularTempoTrabalhado(registrosDoDia, false)).slice(0, 8) // false para dias passados
-                        };
-                    }
-
-                    localStorage.setItem('relatorioSemanal', JSON.stringify(relatorioFinal));
-                    window.location.href = 'relatorio.html';
-
-                } catch (error) {
-                    exibirMensagem('Erro ao gerar relatório. Verifique a conexão.', 'erro');
-                }
+                window.location.href = 'relatorio.html';
             });
         }
 
