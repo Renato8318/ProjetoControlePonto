@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Elementos que podem não existir em todas as páginas
     const progressoBarra = document.getElementById('progresso-barra');
-    const progressoTexto = document.getElementById('progresso-texto');
+    const progressoTexto = document.getElementById('progressoTexto');
     const toggleAlarmePausa = document.getElementById('toggleAlarmePausa');
     const tempoAlarmePausaSelect = document.getElementById('tempoAlarmePausa');
     const btnSalvarConfig = document.getElementById('btnSalvarConfig');
