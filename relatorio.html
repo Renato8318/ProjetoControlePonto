@@ -113,22 +113,28 @@
 
             // 1. Carregar Registros
             const carregarRegistros = async () => {
-                // Carrega do cache local primeiro
+                // Define 'registros' com o cache local como um fallback inicial
                 const stored = localStorage.getItem('registrosVeritime');
-                if (stored) {
-                    registros = JSON.parse(stored);
-                    renderizarCalendario();
-                }
+                registros = stored ? JSON.parse(stored) : [];
 
-                // Busca histórico completo da API
+                // Tenta buscar da API e sobrescrever os registros locais
                 try {
                     const response = await fetch(`${API_URL}?sortBy=timestamp&order=asc`);
+                    
+                    // Trata 404 (Not Found) como uma lista vazia, que é um cenário válido.
                     if (response.ok) {
                         registros = await response.json();
-                        renderizarCalendario();
+                    } else if (response.status !== 404) {
+                        // Se o erro for diferente de 404 (ex: 500), loga o erro.
+                        console.error("Erro ao buscar dados da API:", response.statusText);
                     }
+                    // Se for 404, 'registros' mantém o valor do localStorage (ou vazio), o que está correto.
+
                 } catch (error) {
-                    console.error("Erro ao sincronizar histórico:", error);
+                    console.error("Erro de rede ao sincronizar histórico:", error);
+                } finally {
+                    // GARANTIA: O calendário SEMPRE será renderizado no final.
+                    renderizarCalendario();
                 }
             };
 
