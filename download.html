@@ -46,7 +46,11 @@
             </p>
         </div>
 
-        <div class="space-y-6">
+        <button id="btnInstalar" class="hidden w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-4 px-4 rounded-lg shadow-lg transition-colors transform hover:scale-[1.01] text-lg mb-8">
+            <i class="fas fa-rocket mr-2"></i> Instalar Aplicativo Agora
+        </button>
+
+        <div id="containerInstrucoes" class="space-y-6">
             <!-- Instruções para Desktop -->
             <div class="p-4 border rounded-lg bg-slate-50 dark:bg-slate-700/50 dark:border-slate-600">
                 <h2 class="font-bold text-lg text-indigo-600 dark:text-indigo-400 mb-2"><i class="fas fa-desktop mr-2"></i>Desktop (Chrome/Edge)</h2>
@@ -85,5 +89,38 @@
             <p>&copy; 2025 Veritime</p>
         </footer>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const btnInstalar = document.getElementById('btnInstalar');
+            let deferredPrompt;
+
+            window.addEventListener('beforeinstallprompt', (e) => {
+                // Previne o mini-infobar de aparecer no Chrome/Edge
+                e.preventDefault();
+                // Guarda o evento para que possa ser acionado mais tarde.
+                deferredPrompt = e;
+                // Mostra nosso botão de instalação customizado
+                if (btnInstalar) {
+                    btnInstalar.classList.remove('hidden');
+                }
+            });
+
+            if (btnInstalar) {
+                btnInstalar.addEventListener('click', async () => {
+                    if (deferredPrompt) {
+                        // Mostra o prompt de instalação
+                        deferredPrompt.prompt();
+                        // Espera o usuário responder ao prompt
+                        const { outcome } = await deferredPrompt.userChoice;
+                        // O prompt só pode ser usado uma vez, então limpamos a variável
+                        deferredPrompt = null;
+                        // Esconde o botão de instalação, pois ele não pode ser usado novamente
+                        btnInstalar.classList.add('hidden');
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>
