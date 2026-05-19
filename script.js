@@ -115,27 +115,37 @@ document.addEventListener('DOMContentLoaded', () => {
         // 1. Atualiza a UI localmente IMEDIATAMENTE para feedback rápido
         registros.push(novoRegistro);
         localStorage.setItem('registrosVeritime', JSON.stringify(registros));
-        // Salva o último registro para a página de resumo
-        localStorage.setItem('resumo_ultimoRegistro', `${novoRegistro.tipo} às ${novoRegistro.horario.slice(0, 5)}`);
+        
+        // Adiciona à fila de sincronização pendente
+        const fila = JSON.parse(localStorage.getItem('veritime_sync_queue') || '[]');
+        fila.push({ ...novoRegistro, data_dia: HOJE });
+        localStorage.setItem('veritime_sync_queue', JSON.stringify(fila));
 
         atualizarUICompleta();
         exibirMensagem(`Ponto de ${novoRegistro.tipo} registrado: ${novoRegistro.horario.slice(0, 5)}`, 'sucesso');
+        
+        tentarSincronizarFila();
+    };
 
-        // 2. Tenta salvar na API em segundo plano
-        try {
-            const registroCompleto = { ...novoRegistro, data_dia: HOJE };
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(registroCompleto)
-            });
-            // CORREÇÃO: Mesmo que a resposta do POST não seja 'ok' (um problema comum em algumas APIs de mock),
-            // vamos confiar que o registro foi criado e recarregar a lista para garantir a consistência.
-            // O 'throw' foi removido para evitar a mensagem de erro desnecessária.
-        } catch (error) {
-            console.error("Erro ao salvar na API:", error);
-            // A mensagem de erro só aparecerá se houver uma falha de rede real.
-            exibirMensagem(`Ponto salvo localmente, mas falhou a conexão para sincronizar.`, 'erro');
+    const tentarSincronizarFila = async () => {
+        let fila = JSON.parse(localStorage.getItem('veritime_sync_queue') || '[]');
+        if (fila.length === 0) return;
+
+        for (const item of [...fila]) {
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(item)
+                });
+                if (response.ok) {
+                    fila = fila.filter(i => i.timestamp !== item.timestamp);
+                    localStorage.setItem('veritime_sync_queue', JSON.stringify(fila));
+                }
+            } catch (error) {
+                console.error("Erro na sincronização:", error);
+                break; // Para se houver erro de rede
+            }
         }
     };
 
@@ -228,14 +238,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // Colunas da Jornada Principal
             tr.innerHTML = `
-                <td class="p-3 text-slate-700 dark:text-slate-300">${regPrincipal ? regPrincipal.tipo : ''}</td>
-                <td class="p-3 font-semibold text-slate-800 dark:text-slate-100">${regPrincipal ? regPrincipal.horario.slice(0, 5) : ''}</td>
+                <td class="p-2 md:p-3 text-slate-700 dark:text-slate-300">${regPrincipal ? regPrincipal.tipo : ''}</td>
+                <td class="p-2 md:p-3 font-semibold text-slate-800 dark:text-slate-100">${regPrincipal ? regPrincipal.horario.slice(0, 5) : ''}</td>
             `;
 
             // Colunas das Pausas Curtas
             tr.innerHTML += `
-                <td class="p-3 border-l border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300">${regPausa ? regPausa.tipo : ''}</td>
-                <td class="p-3 font-semibold text-slate-800 dark:text-slate-100">${regPausa ? regPausa.horario.slice(0, 5) : ''}</td>
+                <td class="p-2 md:p-3 border-l border-slate-200 dark:border-slate-600 text-slate-700 dark:text-slate-300">${regPausa ? regPausa.tipo : ''}</td>
+                <td class="p-2 md:p-3 font-semibold text-slate-800 dark:text-slate-100">${regPausa ? regPausa.horario.slice(0, 5) : ''}</td>
             `;
             listaRegistros.appendChild(tr);
         }
@@ -340,8 +350,13 @@ document.addEventListener('DOMContentLoaded', () => {
         // Adicionado: Fecha o menu ao clicar em um item
         if (menuDropdown) {
             menuDropdown.addEventListener('click', (e) => {
-                if (e.target.tagName === 'A' || e.target.closest('a')) {
-                    toggleMenu();
+                const link = e.target.closest('a');
+                if (link) {
+                    // Se for um botão de ação interna (CSV ou Limpar), fechamos o menu.
+                    // Se for um link de página, deixamos o navegador seguir o fluxo.
+                    if (link.id === 'btnExportarCSV' || link.id === 'btnLimpar') {
+                        toggleMenu();
+                    }
                 }
             });
         }
@@ -382,6 +397,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (toggleRegistrosBtn) {
             const painelRegistros = document.getElementById('painelRegistros');
             const caretIcon = document.getElementById('caretIcon');
+
+            // Abre por padrão se a tela for de notebook/desktop (>= 768px)
+            if (window.innerWidth >= 768) {
+                painelRegistros.classList.remove('hidden');
+                caretIcon.classList.add('rotate-180');
+            }
+
             toggleRegistrosBtn.addEventListener('click', () => {
                 painelRegistros.classList.toggle('hidden');
                 caretIcon.classList.toggle('rotate-180');
@@ -515,6 +537,29 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('horaSaidaPrevista').value = saidaFormatada;
     };
 
+    const gerarFundoAnimado = () => {
+        const fragmento = document.createDocumentFragment();
+        const totalIcones = 35;
+        const iconesDisponiveis = ['fa-stopwatch', 'fa-clock', 'fa-history', 'fa-hourglass-half'];
+
+        for (let i = 0; i < totalIcones; i++) {
+            const icone = document.createElement('i');
+            const tipoIcone = iconesDisponiveis[Math.floor(Math.random() * iconesDisponiveis.length)];
+            
+            icone.className = `fas ${tipoIcone} bg-floating-icon`;
+            icone.style.left = `${Math.random() * 100}vw`;
+            icone.style.top = `${Math.random() * 100}vh`;
+            icone.style.fontSize = `${Math.random() * (4 - 1.5) + 1.5}rem`;
+            
+            // Variação na duração da animação para não ficarem todos iguais
+            icone.style.animationDuration = `${Math.random() * (40 - 20) + 20}s`;
+            icone.style.animationDelay = `${Math.random() * -20}s`;
+
+            fragmento.appendChild(icone);
+        }
+        document.body.appendChild(fragmento);
+    };
+
     const atualizarSaudacao = () => {
         const elementoSaudacao = document.getElementById('saudacao');
         if (!elementoSaudacao) return; // Não faz nada se o elemento não existir na página
@@ -534,8 +579,8 @@ document.addEventListener('DOMContentLoaded', () => {
             icone = '<i class="fas fa-cloud-sun fa-beat-fade mr-2 text-orange-400"></i>';
         } else {
             saudacao = 'Boa noite';
-            saudacaoClasses = 'bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-purple-400';
-            icone = '<i class="fas fa-moon fa-beat mr-2 text-indigo-300"></i>';
+            saudacaoClasses = 'bg-clip-text text-transparent bg-gradient-to-r from-teal-400 to-cyan-400';
+            icone = '<i class="fas fa-moon fa-beat mr-2 text-teal-300"></i>';
         }
 
         elementoSaudacao.innerHTML = `${icone} Bem-vindo! <span class="font-bold ${saudacaoClasses}">${saudacao}</span>.`;
@@ -583,10 +628,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // 4. Tenta buscar a versão mais recente da API em segundo plano
         carregarRegistrosDaAPI();
+        tentarSincronizarFila();
     };
 
     // --- INICIALIZAÇÃO ---
     const init = () => {
+        // Registro do Service Worker para PWA
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registrado!', reg))
+                .catch(err => console.error('Erro ao registrar SW:', err));
+        }
+
+        gerarFundoAnimado();
         configurarEventListeners();
         atualizarSaudacao(); // Adiciona a chamada para a nova função
         carregarDados();

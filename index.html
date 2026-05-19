@@ -23,7 +23,7 @@
     <link rel="manifest" href="manifest.json">
     <!-- Ícone da Aba (Favicon) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏰</text></svg>">
-    <meta name="theme-color" content="#4f46e5">
+    <meta name="theme-color" content="#0d9488">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
     <style>
@@ -54,24 +54,24 @@
         }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-300">
-    <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl shadow-lg w-full max-w-lg mx-auto my-6 relative transition-colors duration-300">
+<body class="bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-500">
+    <div class="veritime-card animate-page-in bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-5xl mx-auto my-6 relative z-50 border border-white/20 dark:border-slate-700/50 transition-all duration-300">
         <div class="flex justify-between items-center w-full mb-4 mt-2"> 
             <header class="flex-grow text-center min-w-0 flex flex-col items-center">
                 <p id="saudacao" class="text-center text-lg font-semibold text-slate-600 dark:text-slate-300 mb-2"></p>
                 <!-- SUGESTÃO 2: Efeito de Pulso e Gradiente -->
                 <a href="#" id="logo-container" class="no-underline text-center cursor-pointer">
                     <h1 class="text-4xl md:text-5xl font-extrabold uppercase tracking-widest leading-none 
-                               bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
-                        <i class="fas fa-clock text-3xl md:text-4xl mr-1 text-indigo-500"></i>
+                               bg-clip-text text-transparent bg-gradient-to-br from-teal-400 via-teal-500 to-cyan-500">
+                        <i class="fas fa-clock text-3xl md:text-4xl mr-1 text-teal-500"></i>
                         VERITIME
                     </h1>
-                    <p class="text-indigo-600 dark:text-indigo-400 text-sm italic transition-colors duration-300">O tempo no seu controle</p>
+                    <p class="text-teal-600 dark:text-teal-400 text-sm italic transition-colors duration-300">O tempo no seu controle</p>
                 </a>
             </header>
             
             <div id="menuHambuguer" class="relative ml-2 z-50"> 
-                <button id="btnMenu" class="text-slate-600 dark:text-slate-300 hover:text-indigo-600 focus:outline-none p-1">
+                <button id="btnMenu" class="text-slate-600 dark:text-slate-300 hover:text-teal-600 focus:outline-none p-1">
                     <i class="fas fa-bars text-3xl"></i>
                 </button>
                 <div id="menuDropdown" class="hidden absolute w-48 bg-white dark:bg-slate-700 rounded-lg shadow-xl py-2 mt-2 border border-gray-200 dark:border-slate-600 right-0 top-full">
@@ -115,79 +115,86 @@
                 </div>
             </div>
         </div>
-        <div id="relogio" class="text-4xl font-bold text-center p-4 border-2 border-indigo-500 rounded-lg bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-100 my-6 shadow-inner relative">
-            00:00:00
-        </div>
-
-        <!-- NOVO DASHBOARD DE STATUS -->
-        <div id="dashboardStatus" class="p-4 border border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 mb-6">
-            <div id="resumo" class="text-center text-lg font-semibold text-slate-700 dark:text-slate-300 mb-3">
-                Aguardando Entrada...
-            </div>
-            <div class="w-full h-6 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden relative">
-                <div id="progresso-barra" class="h-full bg-emerald-500 transition-all duration-500 ease-out" style="width: 0%;"></div>
-                <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-800 dark:text-slate-100" id="progressoTexto">0%</span>
-            </div>
-        </div>
-
-        <div class="flex flex-wrap justify-between gap-2 mb-6">
-            <button id="btnEntrada" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                <i class="fas fa-play mr-2"></i> Entrada
-            </button>
-            <button id="btnSaidaAlmoco" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                <i class="fas fa-mug-hot mr-2"></i> Pausa
-            </button>
-            <button id="btnVoltaAlmoco" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                <i class="fas fa-coffee mr-2"></i> Volta
-            </button>
-            <button id="btnSaida" class="bg-red-600 hover:bg-red-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-all duration-300 transform hover:scale-[1.02] w-full sm:w-[calc(50%-4px)]">
-                <i class="fas fa-stop mr-2"></i> Saída
-            </button>
-        </div>
-        
-        <div id="statusMensagem" class="p-3 mb-4 rounded font-semibold text-center" style="display:none;"></div>
-
-        <!-- NOVO ACORDEÃO PARA REGISTROS -->
-        <div class="mt-6 border rounded-lg overflow-hidden shadow-sm">
-            <button id="toggleRegistros" class="w-full p-3 bg-slate-100 hover:bg-slate-200 text-left font-bold text-slate-700 flex justify-between items-center">
-                <span>Registro do Dia</span>
-                <i id="caretIcon" class="fas fa-chevron-down transition-transform"></i>
-            </button>
-            <div id="painelRegistros" class="hidden p-2">
-                <table id="tabelaRegistros" class="w-full border-collapse">
-                    <thead class="bg-indigo-600 text-white">
-                        <tr>
-                            <th class="p-3 text-left w-1/4">Jornada</th>
-                            <th class="p-3 text-left w-1/4">Horário</th>
-                            <th class="p-3 text-left w-1/4 border-l border-indigo-400">Pausas</th>
-                            <th class="p-3 text-left w-1/4">Horário</th>
-                        </tr>
-                    </thead>
-                    <tbody id="lista-registros"></tbody>
-                </table>
-            </div>
-        </div>
-
-        <!-- Seção de Alarme com o mesmo estilo do Relógio -->
-        <div class="mt-8 p-4 border-2 border-indigo-500 rounded-lg bg-indigo-50 dark:bg-slate-700 shadow-inner">
-            <div class="flex flex-col items-center w-full">
-                 <div class="flex items-center space-x-3 w-full justify-center mb-3">
-                    <span class="font-bold text-slate-700 dark:text-slate-200 text-lg">Alarme Volta do Almoço:</span>
-                    <label class="switch">
-                        <input type="checkbox" id="toggleAlarmePausa">
-                        <span class="slider round"></span>
-                    </label>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+            <!-- Coluna da Esquerda: Controle e Status -->
+            <div class="flex flex-col gap-6">
+                <div id="relogio" class="text-5xl font-mono font-bold text-center p-6 border-2 border-teal-500/30 rounded-2xl bg-slate-50 dark:bg-slate-800/50 text-slate-800 dark:text-teal-400 shadow-inner tracking-tighter">
+                    00:00:00
                 </div>
-                <div id="configAlarme" class="w-full max-w-xs mx-auto">
-                    <label for="tempoAlarmePausa" class="block text-sm font-medium text-slate-700 dark:text-slate-300 text-center">Avisar quantos minutos antes?</label>
-                    <select id="tempoAlarmePausa" class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2 text-center">
-                        <option value="1">1 minuto antes</option>
-                        <option value="5" selected>5 minutos antes</option>
-                        <option value="10">10 minutos antes</option>
-                        <option value="15">15 minutos antes</option>
-                    </select>
+
+                <!-- NOVO DASHBOARD DE STATUS -->
+                <div id="dashboardStatus" class="p-5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/30 shadow-sm">
+                    <div id="resumo" class="text-center text-lg font-semibold text-slate-700 dark:text-slate-300 mb-3">
+                        Aguardando Entrada...
+                    </div>
+                    <div class="w-full h-4 bg-slate-200 dark:bg-slate-700 rounded-full overflow-hidden relative shadow-inner">
+                        <div id="progresso-barra" class="h-full bg-gradient-to-r from-emerald-400 to-teal-500 transition-all duration-700 ease-in-out" style="width: 0%;"></div>
+                        <span class="absolute inset-0 flex items-center justify-center text-xs font-bold text-slate-800 dark:text-slate-100" id="progressoTexto">0%</span>
+                    </div>
                 </div>
-                <p id="statusAlarmePausa" class="text-sm text-slate-500 mt-2 italic">Desativado</p>
+
+                <div class="flex flex-wrap justify-between gap-2">
+                    <button id="btnEntrada" class="bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-95 w-full sm:w-[calc(50%-4px)] border-b-4 border-teal-800">
+                        <i class="fas fa-play mr-2"></i> Entrada
+                    </button>
+                    <button id="btnSaidaAlmoco" class="bg-amber-500 hover:bg-amber-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-95 w-full sm:w-[calc(50%-4px)] border-b-4 border-amber-700">
+                        <i class="fas fa-mug-hot mr-2"></i> Pausa
+                    </button>
+                    <button id="btnVoltaAlmoco" class="bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-95 w-full sm:w-[calc(50%-4px)] border-b-4 border-emerald-700">
+                        <i class="fas fa-coffee mr-2"></i> Volta
+                    </button>
+                    <button id="btnSaida" class="bg-rose-600 hover:bg-rose-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-[1.02] active:scale-95 w-full sm:w-[calc(50%-4px)] border-b-4 border-rose-800">
+                        <i class="fas fa-stop mr-2"></i> Saída
+                    </button>
+                </div>
+                <div id="statusMensagem" class="p-3 mb-4 rounded font-semibold text-center" style="display:none;"></div>
+            </div>
+
+            <!-- Coluna da Direita: Histórico e Alarme -->
+            <div class="flex flex-col gap-6">
+                <!-- ACORDEÃO PARA REGISTROS -->
+                <div class="border border-slate-200 dark:border-slate-700 rounded-2xl overflow-hidden shadow-sm bg-white/50 dark:bg-slate-800/30">
+                    <button id="toggleRegistros" class="w-full p-4 hover:bg-slate-100 dark:hover:bg-slate-800/50 text-left font-bold text-slate-700 dark:text-slate-300 flex justify-between items-center transition-colors">
+                        <span>Registro do Dia</span>
+                        <i id="caretIcon" class="fas fa-chevron-down transition-transform"></i>
+                    </button>
+                    <div id="painelRegistros" class="hidden p-2">
+                        <table id="tabelaRegistros" class="w-full border-collapse">
+                            <thead class="bg-teal-600 text-white text-xs md:text-sm">
+                                <tr>
+                                    <th class="p-2 text-left">Jornada</th>
+                                    <th class="p-2 text-left">Hora</th>
+                                    <th class="p-2 text-left border-l border-teal-400">Pausas</th>
+                                    <th class="p-2 text-left">Hora</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lista-registros" class="text-sm md:text-base"></tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Seção de Alarme -->
+                <div class="p-6 border border-teal-500/20 rounded-2xl bg-teal-50/50 dark:bg-slate-800/50 shadow-inner backdrop-blur-sm">
+                    <div class="flex flex-col items-center w-full">
+                         <div class="flex items-center justify-between w-full mb-3">
+                            <span class="font-bold text-slate-700 dark:text-slate-200">Alarme Almoço:</span>
+                            <label class="switch scale-75">
+                                <input type="checkbox" id="toggleAlarmePausa">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <div id="configAlarme" class="w-full">
+                            <select id="tempoAlarmePausa" class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2 text-center text-sm">
+                                <option value="1">1 min antes</option>
+                                <option value="5" selected>5 min antes</option>
+                                <option value="10">10 min antes</option>
+                                <option value="15">15 min antes</option>
+                            </select>
+                        </div>
+                        <p id="statusAlarmePausa" class="text-xs text-slate-500 mt-2 italic">Desativado</p>
+                    </div>
+                </div>
+            </div>
             </div>
         </div>
         <footer class="mt-8 p-4 text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-100 dark:bg-slate-800 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">

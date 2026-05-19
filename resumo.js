@@ -79,7 +79,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     data: [trabalhado, pausa, faltante],
                     backgroundColor: [
                         '#10B981', // emerald-500
-                        '#6366F1', // indigo-500
+                        '#14b8a6', // teal-500 (Verde Água)
                         '#E5E7EB'  // gray-200
                     ],
                     borderColor: '#FFFFFF', // white

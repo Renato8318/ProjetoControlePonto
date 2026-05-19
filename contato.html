@@ -27,45 +27,43 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-300">
-    <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl shadow-lg w-full max-w-lg mx-auto my-6 relative transition-colors duration-300">
-        <a href="index.html" class="absolute top-4 left-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-bold">
+<body class="bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-500">
+    <div class="veritime-card animate-page-in bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-5xl mx-auto my-6 relative border border-white/20 dark:border-slate-700/50 transition-all duration-300">
+        <a href="index.html" class="absolute top-4 left-4 text-teal-600 dark:text-teal-400 hover:text-teal-800 font-bold transition-colors">
             <i class="fas fa-arrow-left mr-1"></i> Voltar
         </a>
         <header class="mb-8 mt-4">
             <p id="saudacao" class="text-center text-lg font-semibold text-slate-600 dark:text-slate-300 mb-2"></p>
-            <h1 class="text-3xl font-extrabold text-center uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
-                <i class="fas fa-paper-plane text-2xl mr-2 text-indigo-500"></i> Fale Conosco
+            <h1 class="text-3xl font-extrabold text-center uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-br from-teal-400 via-teal-500 to-cyan-500">
+                <i class="fas fa-paper-plane text-2xl mr-2 text-teal-500"></i> Fale Conosco
             </h1>
         </header>
 
-        <p class="text-center text-slate-600 dark:text-slate-400 mb-6">Tem alguma sugestão, dúvida ou encontrou um bug? Envie sua mensagem diretamente para o desenvolvedor.</p>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-center mb-6">
+            <div class="text-center md:text-left">
+                <p class="text-lg text-slate-600 dark:text-slate-400 mb-6 md:mb-0">Tem alguma sugestão, dúvida ou encontrou um bug? Envie sua mensagem diretamente para o desenvolvedor. Valorizamos seu feedback para tornar o Veritime cada vez melhor para sua jornada.</p>
+            </div>
 
-        <!--
-            INSTRUÇÕES IMPORTANTES:
-            1. Vá para https://formspree.io/ e crie uma conta gratuita.
-            2. Crie um novo formulário e aponte-o para o seu e-mail: paivarenato08@gmail.com
-            3. O Formspree lhe dará um URL. Substitua "SEU_URL_DO_FORMSPREE" abaixo por esse URL.
-        -->
-        <form action="https://formspree.io/f/xpwvrdep" method="POST" class="space-y-4">
-            <div>
-                <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Seu Nome</label>
-                <input type="text" name="name" id="name" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-            </div>
-            <div>
-                <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Seu Email</label>
-                <input type="email" name="email" id="email" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2">
-            </div>
-            <div>
-                <label for="message" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sugestão / Mensagem</label>
-                <textarea name="message" id="message" rows="4" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 p-2"></textarea>
-            </div>
-            <div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg shadow-md transition-colors transform hover:scale-[1.01]">
-                    <i class="fas fa-paper-plane mr-2"></i> Enviar Mensagem
-                </button>
-            </div>
-        </form>
+            <form action="https://formspree.io/f/xpwvrdep" method="POST" class="space-y-4">
+                <div>
+                    <label for="name" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Seu Nome</label>
+                    <input type="text" name="name" id="name" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2">
+                </div>
+                <div>
+                    <label for="email" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Seu Email</label>
+                    <input type="email" name="email" id="email" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2">
+                </div>
+                <div>
+                    <label for="message" class="block text-sm font-medium text-slate-700 dark:text-slate-300">Sugestão / Mensagem</label>
+                    <textarea name="message" id="message" rows="4" required class="mt-1 block w-full rounded-md border-gray-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-800 dark:text-slate-200 shadow-sm focus:border-teal-500 focus:ring-teal-500 p-2"></textarea>
+                </div>
+                <div>
+                    <button type="submit" class="w-full bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-4 rounded-xl shadow-lg transition-all transform hover:scale-[1.01] border-b-4 border-teal-800">
+                        <i class="fas fa-paper-plane mr-2"></i> Enviar Mensagem
+                    </button>
+                </div>
+            </form>
+        </div>
 
         <footer class="mt-8 p-4 text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-100 dark:bg-slate-800 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
             <p>&copy; 2025 Veritime</p>

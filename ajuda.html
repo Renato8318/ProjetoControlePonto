@@ -29,35 +29,48 @@
         body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-300">
-    <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl shadow-lg w-full max-w-lg mx-auto my-6 relative transition-colors duration-300">
-        <a href="index.html" class="absolute top-4 left-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-bold">
+<body class="bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-500">
+    <div class="veritime-card animate-page-in bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-5xl mx-auto my-6 relative border border-white/20 dark:border-slate-700/50 transition-all duration-300">
+        <a href="index.html" class="absolute top-4 left-4 text-teal-600 dark:text-teal-400 hover:text-teal-800 font-bold transition-colors">
             <i class="fas fa-arrow-left mr-1"></i> Voltar
         </a>
         <header class="mb-8 mt-4">
-            <h1 class="text-3xl font-extrabold text-center uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
-                <i class="fas fa-info-circle text-2xl mr-2 text-indigo-500"></i> Ajuda e Suporte
+            <h1 class="text-3xl font-extrabold text-center uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-br from-teal-400 via-teal-500 to-cyan-500">
+                <i class="fas fa-info-circle text-2xl mr-2 text-teal-500"></i> Ajuda e Suporte
             </h1>
         </header>
         
-        <div class="p-5 border-2 border-slate-200 dark:border-slate-700 rounded-lg bg-slate-50 dark:bg-slate-800/50 mb-6">
-            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-3 border-b-2 dark:border-slate-600 pb-2">Instruções Rápidas</h2>
-            
-            <ul class="list-disc ml-5 space-y-4 text-slate-700 dark:text-slate-300">
-                <li>
-                    <strong class="text-slate-800 dark:text-slate-100">Registro de Ponto Inteligente:</strong> Os botões de "Pausa" e "Volta" são dinâmicos. O sistema guia você através da jornada completa, que inclui duas pausas curtas e um intervalo de almoço. O texto e o ícone do botão de pausa mudarão para indicar a próxima ação correta (Pausa, Saída para Almoço, etc.).
+        <div class="p-5 border border-slate-200 dark:border-slate-700 rounded-xl bg-slate-50/50 dark:bg-slate-800/30 shadow-sm">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-slate-200 mb-5 border-b-2 dark:border-slate-600 pb-2">Instruções Rápidas</h2>
+
+            <ul class="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6 text-slate-700 dark:text-slate-300 list-none ml-0">
+                <li class="flex items-start">
+                    <i class="fas fa-palette text-teal-500 mt-1 mr-3 text-lg"></i>
+                    <span><strong class="text-slate-800 dark:text-slate-100">Cores Semânticas:</strong> Botões com funções indicadas por cores: <span class="text-teal-500 font-bold">Teal</span>, <span class="text-amber-500 font-bold">Âmbar</span>, <span class="text-emerald-500 font-bold">Esmeralda</span> e <span class="text-rose-500 font-bold">Rose</span>.</span>
                 </li>
-                <li>
-                    <strong class="text-slate-800 dark:text-slate-100">Dashboard de Status:</strong> O painel logo abaixo do relógio mostra sua Saída Sugerida, o tempo restante/extra e o progresso visual da sua jornada.
+                <li class="flex items-start">
+                    <i class="fas fa-sync text-teal-500 mt-1 mr-3 text-lg"></i>
+                    <span><strong class="text-slate-800 dark:text-slate-100">Sincronização Inteligente:</strong> Funciona offline! Pontos são salvos localmente e sincronizados com a nuvem automaticamente.</span>
                 </li>
-                <li>
-                    <strong class="text-slate-800 dark:text-slate-100">Resumo Diário com Gráfico:</strong> Acesse o <span class="font-semibold">Resumo Diário</span> pelo menu para ver um gráfico visual da distribuição do seu tempo (trabalhado, em pausa e restante).
+                <li class="flex items-start">
+                    <i class="fas fa-tachometer-alt text-teal-500 mt-1 mr-3 text-lg"></i>
+                    <span><strong class="text-slate-800 dark:text-slate-100">Dashboard Visual:</strong> Acompanhe o progresso da sua jornada e a <span class="font-semibold italic">Saída Sugerida</span> em tempo real.</span>
                 </li>
-                <li>
-                    <strong class="text-slate-800 dark:text-slate-100">Alarme de Pausa:</strong> Ative o alarme para receber um lembrete vibratório antes do fim do seu intervalo. Você pode personalizar o tempo do aviso (1, 5, 10 ou 15 minutos).
+                <li class="flex items-start">
+                    <i class="fas fa-chart-bar text-teal-500 mt-1 mr-3 text-lg"></i>
+                    <span><strong class="text-slate-800 dark:text-slate-100">Relatórios e Gráficos:</strong> Resumo Diário com gráficos e Relatório Mensal com exportação para <span class="font-semibold text-rose-500">PDF</span>.</span>
                 </li>
-                <li>
-                    <strong class="text-slate-800 dark:text-slate-100">Menu de Opções Avançadas:</strong> Acesse o menu no canto superior direito para encontrar funcionalidades poderosas como <span class="font-semibold">Relatório Semanal</span>, <span class="font-semibold">Exportar CSV</span>, <span class="font-semibold">Modo Escuro</span> e a opção de <span class="font-semibold text-red-600 dark:text-red-400">Limpar Dados</span>.
+                <li class="flex items-start">
+                    <i class="fas fa-mobile-alt text-teal-500 mt-1 mr-3 text-lg"></i>
+                    <span><strong class="text-slate-800 dark:text-slate-100">Instalação PWA:</strong> Instale o Veritime no celular ou computador para acesso rápido como um app nativo.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-bell text-teal-500 mt-1 mr-3 text-lg"></i>
+                    <span><strong class="text-slate-800 dark:text-slate-100">Alarme com Vibração:</strong> Lembretes de volta do almoço com feedback tátil em dispositivos compatíveis.</span>
+                </li>
+                <li class="flex items-start">
+                    <i class="fas fa-tools text-teal-500 mt-1 mr-3 text-lg"></i>
+                    <span><strong class="text-slate-800 dark:text-slate-100">Opções Avançadas:</strong> Exportação para <span class="font-semibold">CSV</span>, Modo Escuro e limpeza segura de dados locais.</span>
                 </li>
             </ul>
         </div>

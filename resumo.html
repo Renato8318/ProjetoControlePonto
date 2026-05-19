@@ -33,54 +33,52 @@
     <!-- Adiciona a biblioteca Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body class="bg-slate-100 dark:bg-slate-900 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-300">
-    <div class="bg-white dark:bg-slate-800 p-6 md:p-8 rounded-xl shadow-lg w-full max-w-lg mx-auto my-6 relative transition-colors duration-300">
-        <a href="index.html" class="absolute top-4 left-4 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 font-bold">
+<body class="bg-slate-50 dark:bg-slate-950 flex flex-col justify-center items-center p-4 min-h-screen transition-colors duration-500">
+    <div class="veritime-card animate-page-in bg-white/70 dark:bg-slate-900/70 backdrop-blur-md p-6 md:p-8 rounded-2xl shadow-2xl w-full max-w-lg md:max-w-4xl mx-auto my-6 relative border border-white/20 dark:border-slate-700/50 transition-all duration-300">
+        <a href="index.html" class="absolute top-4 left-4 text-teal-600 dark:text-teal-400 hover:text-teal-800 font-bold transition-colors">
             <i class="fas fa-arrow-left mr-1"></i> Voltar
         </a>
         <header class="mb-8 mt-4">
             <p id="saudacao" class="text-center text-lg font-semibold text-slate-600 dark:text-slate-300 mb-2"></p>
-            <h1 class="text-3xl font-extrabold text-center uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">
-                <i class="fas fa-chart-line text-2xl mr-2 text-indigo-500"></i> RESUMO DIÁRIO
+            <h1 class="text-3xl font-extrabold text-center uppercase tracking-widest bg-clip-text text-transparent bg-gradient-to-br from-teal-400 via-teal-500 to-cyan-500">
+                <i class="fas fa-chart-line text-2xl mr-2 text-teal-500"></i> RESUMO DIÁRIO
             </h1>
             <p id="erroResumo" class="p-3 mt-4 rounded font-semibold text-center mensagem erro" style="display:none;"></p>
         </header>
 
-        <div class="w-full max-w-xs mx-auto mb-6">
-            <canvas id="graficoJornada"></canvas>
-        </div>
-        
-        <div id="resumoJornada" class="mt-6 p-5 border-2 border-indigo-500 rounded-lg bg-indigo-50 dark:bg-indigo-900/30">
-            <h2 class="text-xl font-bold text-indigo-700 dark:text-indigo-300 mb-4 text-center border-b-2 border-indigo-300 dark:border-indigo-600 pb-2">Detalhes da Jornada</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start">
+            <div class="w-full max-w-xs mx-auto">
+                <canvas id="graficoJornada"></canvas>
+            </div>
             
-            <div class="grid grid-cols-2 gap-4 text-slate-700 dark:text-slate-300">
-                <p>Jornada Meta:</p>
-                <p class="font-bold text-slate-800 dark:text-slate-100 text-right" id="metaTotal">--:--</p>
+            <div id="resumoJornada" class="veritime-card p-5 border-2 border-teal-500/20 rounded-2xl bg-teal-50/30 dark:bg-slate-700/50">
+                <h2 class="text-xl font-bold text-teal-700 dark:text-teal-400 mb-4 text-center border-b border-teal-200 dark:border-slate-600 pb-2">Detalhes da Jornada</h2>
                 
-                <p>Tempo de Pausa:</p>
-                <p class="font-bold text-slate-800 dark:text-slate-100 text-right" id="pausaTotal">--:--</p>
+                <div class="grid grid-cols-2 gap-4 text-slate-700 dark:text-slate-300 text-sm">
+                    <p>Jornada Meta:</p>
+                    <p class="font-bold text-slate-800 dark:text-slate-100 text-right" id="metaTotal">--:--</p>
+                    
+                    <p>Tempo de Pausa:</p>
+                    <p class="font-bold text-slate-800 dark:text-slate-100 text-right" id="pausaTotal">--:--</p>
+                    
+                    <p>Horário de Entrada:</p>
+                    <p class="font-bold text-slate-800 dark:text-slate-100 text-right" id="entradaRegistrada">--:--</p>
+                </div>
                 
-                <p>Horário de Entrada:</p>
-                <p class="font-bold text-slate-800 dark:text-slate-100 text-right" id="entradaRegistrada">--:--</p>
+                <div class="mt-4 pt-4 border-t border-teal-200 dark:border-slate-600">
+                    <p class="text-slate-700 dark:text-slate-300 text-sm">Tempo Trabalhado (líquido):</p>
+                    <p id="tempoTrabalhado" class="font-bold text-2xl text-emerald-600 dark:text-emerald-400">--:--:--</p>
+                </div>
+                
+                <div class="mt-4 pt-4 border-t border-teal-200 dark:border-slate-600">
+                    <p class="text-slate-700 dark:text-slate-300 text-sm">Último Registro:</p>
+                    <p id="ultimoRegistroDisplay" class="font-bold text-xl text-amber-600 dark:text-amber-400">--:--</p>
+                </div>
+                
+                <p class="mt-6 pt-4 border-t border-teal-200 dark:border-slate-600 font-bold text-lg text-slate-800 dark:text-slate-200">
+                    Saída Sugerida: <span id="saidaSugeria" class="text-rose-600 dark:text-rose-400 ml-1">--:--</span>
+                </p>
             </div>
-            
-            <div class="mt-4 pt-4 border-t border-indigo-300 dark:border-indigo-600">
-                <p class="text-slate-700 dark:text-slate-300">Tempo Trabalhado (até agora):</p>
-                <p id="tempoTrabalhado" class="font-bold text-2xl text-emerald-600 dark:text-emerald-400">--:--:--</p>
-            </div>
-            
-            <div class="mt-4 pt-4 border-t border-indigo-300 dark:border-indigo-600">
-                <p class="text-slate-700 dark:text-slate-300">Último Registro:</p>
-                <p id="ultimoRegistroDisplay" class="font-bold text-xl text-amber-600 dark:text-amber-400">Nenhum ponto registrado.</p>
-            </div>
-            
-            <p class="mt-6 pt-4 border-t border-indigo-300 dark:border-indigo-600 font-bold text-lg text-slate-800 dark:text-slate-200">
-                Saída Sugerida: <span id="saidaSugeria" class="text-red-600 dark:text-red-400 ml-1">--:--</span>
-            </p>
-            
-            <p class="mt-5 text-slate-600 dark:text-slate-400 text-sm italic border-t dark:border-slate-700 pt-3">
-                *A Saída Sugerida é calculada com base na **Jornada Meta** e no **Tempo de Pausa**.
-            </p>
         </div>
         
         <footer class="mt-8 p-4 text-sm text-slate-500 dark:text-slate-400 text-center bg-slate-100 dark:bg-slate-800 rounded-b-xl -mx-6 -mb-6 md:-mx-8 md:-mb-8">
